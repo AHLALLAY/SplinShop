@@ -1,0 +1,20 @@
+{
+  "name": "splinedge_shop",
+  "version": "1.0.0",
+  "description": "Ce document est la référence principale du PoC. En cas de conflit entre sources historiques, ce README fait foi.",
+  "license": "ISC",
+  "author": "Abderrahmane Ahlallay",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "concurrently -n Frontend,Backend -c blue,green \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
