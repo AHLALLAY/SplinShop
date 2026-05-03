@@ -52,6 +52,4 @@ coverage/
 !.vscode/extensions.json
 
 # --------------------------------- AUTRES ---------------------------------
-docs/*
-!docs/CDC__Plateforme_SplinShop.pdf
-!docs/SplinShop (diagramme de classe).drawio
+docs/*.md
