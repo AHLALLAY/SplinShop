@@ -1,14 +1,14 @@
 import { useState } from "react";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input.jsx";
-import { login } from "../../services/auth.js";
+import Auth from "../../services/auth.js";
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     return (
-        <form onSubmit={login}>
+        <form onSubmit={(e) => Auth.login(e)}>
             <div className="flex justify-between">
                 <h2>Connexion</h2>
                 <button className="bg-gray-200 text-orange-300 hover:text-red-400">&times;</button>
