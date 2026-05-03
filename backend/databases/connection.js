@@ -13,7 +13,6 @@ class Connection {
 
     async connectToDb(){
         try {
-            $connect(); //force la connexion immédiate pour s'assurer que la BDD est joignable au démarrage
             await this.prisma.$connect();
             this.isConnected=true;
             console.info("PostgreSQL connected via prisma");
@@ -32,3 +31,5 @@ class Connection {
         }
     }
 }
+
+export default new Connection();
