@@ -1,0 +1,1037 @@
+\documentclass[11pt,a4paper]{scrreprt}
+
+% Encodage et langue
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% Mise en page
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{enumitem}
+\setstretch{1.08}
+
+% Couleurs SplinShop
+\usepackage[HTML]{xcolor}
+\definecolor{SplinGreen}{HTML}{006B3C}
+\definecolor{SplinAmber}{HTML}{D45500}
+\definecolor{Anthracite}{HTML}{222222}
+\definecolor{LightGray}{HTML}{F6F6F4}
+\definecolor{RuleGreenBg}{HTML}{F1F8F4}
+\definecolor{VigilanceBg}{HTML}{FFF5EA}
+\colorlet{HighlightBg}{SplinAmber!12}
+\colorlet{HighlightBorder}{SplinAmber}
+
+% Tableaux, mathématiques et code
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+
+% Liens cliquables
+\usepackage[
+  colorlinks=true,
+  linkcolor=SplinGreen,
+  urlcolor=SplinAmber,
+  citecolor=SplinGreen
+]{hyperref}
+
+% Style global
+\color{Anthracite}
+\renewcommand{\familydefault}{\rmdefault}
+\addtokomafont{chapter}{\sffamily\color{SplinGreen}}
+\addtokomafont{section}{\sffamily\color{SplinGreen}}
+\addtokomafont{subsection}{\sffamily\color{SplinAmber}}
+\addtokomafont{subsubsection}{\sffamily\color{SplinAmber}}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.2em,topsep=0.2em}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=0.2em,topsep=0.2em}
+\renewcommand{\arraystretch}{1.25}
+
+\lstdefinestyle{SplinCode}{
+  backgroundcolor=\color{LightGray},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{SplinAmber},
+  framerule=0.4pt,
+  columns=fullflexible,
+  keepspaces=true
+}
+\lstset{style=SplinCode}
+
+\newtcolorbox{businessrulebox}[1][]{
+  enhanced,
+  breakable,
+  colback=RuleGreenBg,
+  colframe=SplinGreen,
+  coltitle=white,
+  fonttitle=\sffamily\bfseries,
+  title=#1,
+  arc=2mm,
+  boxrule=0.7pt,
+  left=2mm,
+  right=2mm,
+  top=2mm,
+  bottom=2mm
+}
+
+\newtcolorbox{vigilancebox}[1][]{
+  enhanced,
+  breakable,
+  colback=VigilanceBg,
+  colframe=SplinAmber,
+  coltitle=white,
+  fonttitle=\sffamily\bfseries,
+  title=#1,
+  arc=2mm,
+  boxrule=0.7pt,
+  left=2mm,
+  right=2mm,
+  top=2mm,
+  bottom=2mm
+}
+
+\newtcbox{\highlight}{
+  on line,
+  colback=HighlightBg,
+  colframe=HighlightBorder,
+  boxrule=0.4pt,
+  arc=1.5mm,
+  left=1mm,
+  right=1mm,
+  top=0.4mm,
+  bottom=0.4mm
+}
+
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\phase}[1]{\textbf{\textcolor{SplinAmber}{#1}}}
+\newcommand{\actorbadge}[1]{\highlight{\code{#1}}}
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\sffamily\bfseries\Huge\color{SplinGreen} Cahier des Charges : Plateforme SplinShop\par}
+  \vspace{0.8cm}
+  {\Large\color{SplinAmber} Plateforme e-commerce SPLINEDGE\par}
+  \vspace{2cm}
+  \rule{0.75\textwidth}{1.2pt}\par
+  \vspace{1cm}
+  {\Large \textbf{Entreprise :} Splinedge\par}
+  \vspace{0.4cm}
+  {\Large \textbf{Auteur :} Abderrahmane AHLALLAY\par}
+  \vspace{0.4cm}
+  {\Large \textbf{Date :} \today\par}
+  \vfill
+  {\large Document de référence pour le MVP, la V1 et les évolutions V2+\par}
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+Ce document sert pour les ateliers. Chaque section liste les points à discuter et à valider. La rédaction détaillée continue après validation de ces points.
+
+L'inventaire technique des écrans, routes et fichiers frontend est complété par \code{docs/v2/README\_Pages\_v3\_.md}, aligné sur les exigences fonctionnelles décrites ici.
+
+Ce cahier des charges est la référence unique de la cible produit. Le \code{MVP}, la \code{V1} et la \code{V2+} sont des livraisons successives de cette même cible. Ce ne sont pas des périmètres séparés.
+
+\chapter{Contexte du projet}
+
+\section{Vue d'ensemble}
+SPLINEDGE développe une plateforme e-commerce. La plateforme doit gérer une chaîne complète : approvisionnement, stock et vente.
+
+Le contexte métier est complexe :
+\begin{itemize}
+  \item les achats et les coûts peuvent être en \code{EUR} ou \code{MAD} ;
+  \item les ventes sont en \code{MAD} ;
+  \item les fournisseurs peuvent vendre à \code{crédit} ou demander un \code{paiement à l'avance} ;
+  \item les stocks sont suivis par \code{lots} ;
+  \item la sortie des lots suit la règle \code{FIFO} localement;
+  \item la vente peut se faire unité par unité ;
+  \item le prix de vente peut changer d'un lot à l'autre ;
+  \item le prix de référence peut être recalculé avec une \code{moyenne pondérée} ;
+  \item pour le \code{MVP}, le stock est géré sur un entrepôt principal unique à Marrakech ;
+  \item les dates de péremption et les alertes doivent être prises en compte ;
+  \item le code-barres aide les équipes terrain à limiter les erreurs.
+\end{itemize}
+
+La première étape est un \code{MVP}. Son but est de valider les flux critiques métier et technique avant d'élargir le périmètre.
+
+\section{Problème à résoudre}
+Le produit doit gérer correctement les prix, les stocks et les achats fournisseurs quand :
+\begin{itemize}
+  \item le taux de change évolue ;
+  \item plusieurs lots du même article ont des coûts différents ;
+  \item pour le \code{MVP}, le stock est centralisé à Marrakech sur un entrepôt unique ;
+  \item les dates de péremption et la disponibilité doivent être prises en compte ;
+  \item une même commande, ou une même ligne, doit puiser dans plusieurs lots tout en respectant le \code{FIFO} local de l'entrepôt de sortie et en gardant une traçabilité cohérente sur le coût, les quantités et les mouvements ;
+  \item les fournisseurs imposent des modalités différentes selon la phase ; pour le \code{MVP}, l'achat à crédit n'est pas inclus ;
+  \item les prix de vente peuvent varier entre lots ; il faut donc définir comment calculer le prix affiché ou le prix de référence ;
+  \item les ventes se font unité par unité ; chaque sortie doit donc respecter le \code{FIFO} au niveau du lot consommé dans l'entrepôt concerné.
+\end{itemize}
+
+\section{Objectifs produit}
+Le produit doit :
+\begin{itemize}
+  \item proposer une solution e-commerce solide et évolutive ;
+  \item maîtriser le parcours \code{catalogue -> commande -> stock -> livraison} ;
+  \item assurer la cohérence entre coût, prix et stock, par lot et par ville ;
+  \item poser une base technique prête pour une future mise en production.
+\end{itemize}
+
+\section{Hypothèses, contraintes et limites}
+\begin{itemize}
+  \item Les versions \code{V1} et \code{V2+} suivront les retours du \code{MVP}.
+  \item Le \code{MVP} contient l'essentiel pour valider le métier et la technique.
+  \item Les engagements de type \code{SLA}, l'exploitation \code{24h/24} et le support de production sont hors \code{MVP}.
+\end{itemize}
+
+Le \code{MVP} sert d'abord à apprendre, valider et sécuriser les flux critiques. Il ne porte pas encore d'engagement d'exploitation industrielle.
+
+\section{Parties prenantes du projet}
+\begin{itemize}
+  \item le sponsor ou décideur métier ;
+  \item le responsable produit, qui porte les besoins et la priorisation ;
+  \item l'équipe de développement ;
+  \item le superviseur, qui valide et arbitre.
+\end{itemize}
+
+\section{Rôles métier dans l'application}
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{>{\bfseries}p{3cm}X}
+\toprule
+Rôle & Explication \\
+\midrule
+\code{visitor} & Utilisateur non connecté. Il peut consulter le catalogue, les catégories et les fiches produits publiques, mais ne peut pas commander, utiliser un panier persistant ou accéder aux espaces \code{customer}, \code{seller} ou \code{admin}. \\
+\code{admin} & Gère le catalogue, les commandes, les stocks et les alertes au niveau global. \\
+\code{customer} & Parcourt le site, remplit le panier, passe commande et suit sa commande. \\
+\code{seller} & Opérateur local. Il gère la réception, le scan, l'inventaire, les mouvements de stock et, selon le périmètre livré, la \textbf{supervision et la préparation} des commandes à traiter sur son périmètre. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Parcours minimum à couvrir en MVP}
+Le \code{MVP} doit couvrir au minimum :
+\begin{enumerate}
+  \item la connexion selon le rôle ;
+  \item la création de compte (\textbf{inscription}) lorsque le parcours l'exige pour commander ou accéder au panier persisté ;
+  \item la consultation du catalogue en mode visiteur ;
+  \item la consultation du catalogue et la mise au panier pour un client connecté ;
+  \item le passage de commande via \code{WhatsApp} ;
+  \item la mise à jour du stock avec gestion des lots et du \code{FIFO} ;
+  \item le suivi de commande ;
+  \item l'utilisation du scan en réception ou en vente selon le cas ;
+  \item la gestion des catégories ;
+  \item le paiement et la confirmation de commande selon le workflow \code{MVP} sans intégration d'un prestataire externe à ce stade ;
+  \item lorsque le périmètre le prévoit dans la même livraison : une \textbf{vue seller de préparation des commandes} (file des demandes, statuts jusqu'à prêt à remettre ou expédier).
+\end{enumerate}
+
+\section{Périmètre par phase}
+\begin{table}[h]
+\centering
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.5cm}X}
+\toprule
+Phase & Orientation \\
+\midrule
+\code{MVP} & Boucle courte pour valider les flux critiques métier et technique, sans engagement \code{SLA} de production. \\
+\code{V1} & Après retours sur le \code{MVP}, accent sur l'exploitation, la fiabilité, la sécurité et l'observabilité avec logs et métriques, en plus des éléments déjà tagués \code{[V1]}. \\
+\code{V2+} & Évolutions différenciantes et automatisation plus poussée, arbitrées après le \code{MVP}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\chapter{Fonctionnalités et parcours}
+
+\section{Vue fonctionnelle détaillée}
+
+\subsection{Connexion sécurisée, sessions JWT, renouvellement, RBAC et journal des actions sensibles \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SELLER} \actorbadge{CUSTOMER}
+
+\textbf{Description :} le système gère une authentification sécurisée, le renouvellement des sessions, le contrôle d'accès par rôle (\code{RBAC}) et la trace des actions sensibles.
+
+\textbf{User story :} En tant qu'utilisateur autorisé, je veux accéder uniquement aux écrans correspondant à mon rôle afin de protéger les données et les opérations sensibles.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Un utilisateur avec le bon rôle accède aux écrans prévus. Sinon, l'API retourne \code{403}.
+  \item Sans jeton valide, ou avec un jeton expiré, l'API retourne \code{401} sans fuite de données métier.
+  \item Un renouvellement de jeton valide fournit une nouvelle paire de jetons. Un jeton invalide est refusé proprement.
+  \item Les actions sensibles, comme la connexion et les échecs, sont tracées dans le journal.
+\end{enumerate}
+
+\subsection{Catalogue, fiche produit, panier persistant, commande et confirmation \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{CUSTOMER}
+
+\textbf{Description :} le client consulte le catalogue, ouvre une fiche produit, garde son panier, passe commande et reçoit une confirmation.
+
+\textbf{User story :} En tant que client, je veux consulter les produits, gérer mon panier et confirmer ma commande afin d'acheter facilement les articles disponibles.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Le catalogue gère les catégories, la recherche et la pagination.
+  \item La fiche produit affiche le prix et un état de disponibilité (\emph{en stock}, \emph{stock faible}, \emph{épuisé}) sans exposer ni la ville ni la quantité exacte.
+  \item Le panier reste conservé entre les visites.
+  \item Le passage de commande aboutit à un message de confirmation. Le parcours reste utilisable de bout en bout.
+  \item Les écrans de panier et de paiement peuvent afficher un message clair lorsqu'une ligne devient indisponible (rupture, réallocation), en cohérence avec les règles de réservation décrites en \code{V1}.
+\end{enumerate}
+
+\subsection{Administration des produits, catégories, commandes, stocks et alertes \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{ADMIN}
+
+\textbf{Description :} l'administration centralise la gestion du catalogue, des commandes, des stocks, des lots et des alertes.
+
+\textbf{User story :} En tant qu'administrateur, je veux piloter les produits, catégories, commandes, stocks et alertes depuis un back-office centralisé afin de sécuriser les opérations quotidiennes.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Le \code{CRUD} des produits et des catégories fonctionne.
+  \item Le suivi des commandes et la mise à jour des statuts suivent le workflow cible.
+  \item La vue du stock de l'entrepôt principal Marrakech, par lot, est exploitable pour les opérations courantes.
+  \item Les alertes sont consultables et déclenchent des actions correctives côté back-office.
+\end{enumerate}
+
+\subsection{Gestion des comptes utilisateurs Seller \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{ADMIN}
+
+\textbf{Description :} l'\code{admin} crée, consulte, modifie, active, désactive ou supprime les comptes utilisateurs portant le rôle \code{seller}.
+
+\textbf{User story :} En tant qu'administrateur, je veux gérer les comptes Seller afin de contrôler les accès des opérateurs locaux aux écrans de réception, vente et mouvement de stock.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Le \code{CRUD} des comptes \code{seller} est disponible depuis l'administration.
+  \item Chaque compte \code{seller} possède au minimum une identité, un email unique, un statut et un rôle explicite.
+  \item La désactivation d'un compte bloque les nouvelles connexions sans supprimer l'historique des actions déjà réalisées.
+  \item Les créations, modifications de rôle, activations et désactivations sont journalisées.
+\end{enumerate}
+
+\subsection{Enregistrement des lots d'achat en EUR ou MAD avec taux figé à l'entrée \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{ADMIN}
+
+\textbf{Description :} l'\code{admin} enregistre un lot acheté en \code{EUR} ou en \code{MAD}. Le système convertit le coût en \code{MAD} si nécessaire et fige le taux à l'entrée ; pour un achat déjà saisi en \code{MAD}, le taux de change appliqué est \code{1}.
+
+\textbf{User story :} En tant qu'administrateur, je veux enregistrer les achats fournisseurs en EUR ou en MAD afin de conserver un coût MAD fiable et traçable pour chaque lot.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Après la création d'un lot, la devise d'achat et le taux appliqué vers \code{MAD} sont figés et relisibles.
+  \item Le coût en \code{MAD} du lot est calculé et traçable.
+  \item Si l'achat est saisi en \code{MAD}, le taux figé vaut \code{1} et aucune conversion supplémentaire n'est appliquée.
+  \item Chaque import est identifiable : qui, quand et quel lot.
+  \item L'historique des taux utilisés reste consultable.
+\end{enumerate}
+
+\subsection{Gestion des fournisseurs et des achats \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN}
+
+\textbf{Description :} le système gère les fournisseurs, les commandes d'achat et les différences entre achat à crédit et paiement avant réception.
+
+\textbf{User story :} En tant qu'administrateur, je veux suivre les fournisseurs, les commandes d'achat et les paiements associés afin de maîtriser les engagements fournisseurs et la réception des marchandises.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Chaque lot, ou mouvement d'achat, peut être rattaché à un fournisseur et à une commande fournisseur avec des statuts cohérents comme \code{commandé}, \code{payé partiellement}, \code{payé intégralement} et \code{reçu}.
+  \item En cas d'achat à crédit, le système enregistre la dette ou les échéances selon le modèle retenu.
+  \item En cas de paiement avant réception, le paiement fournisseur est tracé. La marchandise n'entre en stock qu'à la réception.
+  \item Les montants en \code{EUR} et \code{MAD}, ainsi que les dates, restent auditables.
+\end{enumerate}
+
+\subsection{Prix de vente par lot et prix de référence recommandé \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SYSTEM}
+
+\textbf{Description :} chaque lot peut avoir son propre prix de vente. Le système calcule aussi un prix de référence recommandé quand plusieurs lots du même produit coexistent.
+
+\textbf{User story :} En tant qu'administrateur, je veux définir les prix de vente par lot et recevoir une recommandation de prix de référence afin de décider un prix catalogue cohérent avec le stock réel.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Chaque lot peut porter un prix de vente unitaire distinct en \code{MAD}.
+  \item Le système calcule une recommandation par moyenne pondérée.
+  \item Chaque recalcul après mouvement de stock est reproductible et vérifiable.
+  \item L'\code{admin} peut garder un prix catalogue stable différent de la recommandation.
+  \item Les arrondis et l'affichage côté client sont uniformes.
+\end{enumerate}
+
+\subsection{Gestion des stocks par lots et consommation FIFO à la vente \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SELLER} \actorbadge{SYSTEM}
+
+\textbf{Description :} le stock est suivi par lot. \highlight{La consommation suit le \code{FIFO} local de l'entrepôt de sortie.}
+
+\textbf{User story :} En tant qu'opérateur de stock, je veux que les ventes consomment les lots selon le FIFO local de l'entrepôt de sortie afin de préserver la traçabilité et limiter les erreurs de coût.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Si une ligne de commande utilise plusieurs lots, l'ordre de consommation va du plus ancien au plus récent dans l'entrepôt concerné.
+  \item En vente unité par unité, chaque unité vendue consomme d'abord le lot le plus ancien disponible dans l'entrepôt principal Marrakech.
+  \item Chaque sortie crée un mouvement de stock lié à la commande.
+  \item En cas d'annulation ou de correction, il ne doit pas y avoir de stock négatif silencieux.
+  \item Les quantités sont suivies au niveau du lot.
+\end{enumerate}
+
+\subsection{Stock central Marrakech et alertes \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{ADMIN}
+
+\textbf{Description :} pour le \code{MVP}, les lots sont gérés sur un entrepôt principal unique à Marrakech. Le back-office gère aussi les alertes de rupture, de stock faible et de péremption.
+
+\textbf{User story :} En tant qu'administrateur, je veux suivre le stock central Marrakech et consulter les alertes afin de maintenir une disponibilité fiable sur le périmètre \code{MVP}.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Le stock est visible dans l'administration sur l'entrepôt principal de Marrakech.
+  \item L'architecture conserve la possibilité d'évoluer vers du multi-entrepôts en \code{V1} sans impacter les règles \code{MVP}.
+  \item Les seuils d'alerte sont réglables.
+  \item Quand le stock passe sous le seuil, une alerte est créée ou mise à jour.
+  \item Les alertes critiques sont visibles dans le back-office.
+  \item Les alertes peuvent aussi signaler un contexte de \textbf{stock très tendu} après arbitrage entre plusieurs paniers ou réservations (\code{V1}), sans créer de stock fantôme.
+\end{enumerate}
+
+\subsection{Scan code-barres en réception et en vente \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{SELLER}
+
+\textbf{Description :} le scan permet de retrouver la bonne entité et de lancer l'action prévue pendant une réception ou une vente.
+
+\textbf{User story :} En tant que seller, je veux scanner les codes-barres en réception ou en vente afin d'identifier rapidement le bon produit ou lot et de réduire les erreurs de saisie.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Un code reconnu correspond à une seule entité attendue dans le contexte d'utilisation.
+  \item Un code inconnu affiche un message clair sans modifier le stock par erreur.
+  \item Le scan déclenche l'action prévue, par exemple réception ou vente.
+  \item \highlight{Le \code{MVP} priorise les douchettes USB classiques} qui fonctionnent par émulation clavier.
+\end{enumerate}
+
+\subsection{Paiement de commande \phase{[MVP / V1]}}
+\textbf{Acteurs :} \actorbadge{CUSTOMER}
+
+\textbf{Description :} pour le \code{MVP}, le parcours de paiement reste interne au système, sans intégration d'un prestataire externe à ce stade. La \code{V1} pourra intégrer un prestataire de paiement en ligne si le projet le décide. Par ailleurs, le modèle opérationnel peut prévoir (\code{V1}) que tout l'encaissement ne transite pas systématiquement par un prestataire : un \code{seller} peut conserver des paiements clients et effectuer un \textbf{reversement périodique} vers le compte de la plateforme ; ces flux doivent être traçables et rapprochables.
+
+\textbf{User story :} En tant que client, je veux disposer d'un parcours de paiement clair afin de finaliser ma commande et obtenir une confirmation fiable.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item À la création, la commande a un statut initial cohérent avec le workflow \code{MVP}.
+  \item Le total en \code{MAD} est égal à la somme des lignes.
+  \item Après validation du paiement dans le workflow \code{MVP}, il n'y a pas de double validation incohérente.
+  \item Le traitement reste idempotent pour éviter les doubles validations.
+  \item En \code{V1}, lorsque le seller conserve des encaissements, chaque enregistrement de versement vers la plateforme est daté, montanté et rapproché sans double comptage.
+\end{enumerate}
+
+\subsection{Carnet de crédit clients \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{CUSTOMER}
+
+\textbf{Description :} le système permet de suivre les montants dus par certains clients lorsque la vente se fait à crédit ou avec paiement différé.
+
+\textbf{User story :} En tant qu'administrateur, je veux suivre les crédits clients et leurs paiements afin de connaître précisément les montants dus et leur historique.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Un client peut avoir un solde de crédit consultable par l'administration.
+  \item \highlight{Le solde est calculé à partir de lignes transactionnelles} : une dette est un montant positif et un remboursement est un montant négatif.
+  \item Chaque ligne enregistre au minimum la date, le client, le montant et le lien avec la commande ou l'opération concernée.
+  \item Les paiements partiels diminuent le montant restant sans perdre l'historique.
+  \item Le système affiche les crédits \code{en cours}, \code{payés}, \code{en retard} ou \code{annulés}.
+  \item L'admin peut consulter l'historique des crédits et des paiements par client.
+  \item Le client peut voir son solde dû et l'historique de ses commandes à crédit si cette option est activée.
+\end{enumerate}
+
+\subsection{Paiement réel stabilisé et observabilité \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SYSTEM}
+
+\textbf{Description :} la \code{V1} stabilise l'intégration de paiement réel et améliore l'observabilité. L'intégration de paiement, Stripe ou équivalent, doit être jugée stable en recette et en préproduction. Les événements de paiement restent traçables et cohérents avec les statuts de commande.
+
+\textbf{User story :} En tant qu'administrateur, je veux disposer d'un paiement en ligne stabilisé et observable afin de diagnostiquer les incidents et rapprocher les transactions avec les commandes.
+
+\subsection{Inscription et création de compte \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{CUSTOMER} \actorbadge{SELLER} \actorbadge{ADMIN}
+
+\textbf{Description :} les utilisateurs qui doivent s'authentifier disposent d'un parcours d'inscription avec validation minimale des données et attribution du rôle conforme au processus métier (client ; compte \code{seller} généralement créé ou validé par l'\code{admin}).
+
+\textbf{User story :} En tant que nouvel utilisateur, je veux créer un compte afin d'accéder au panier, aux commandes ou à l'espace qui correspond à mon rôle.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item L'email est unique ; le mot de passe respecte la politique minimale de sécurité du projet.
+  \item Après inscription, l'utilisateur peut se connecter avec le même mécanisme que les comptes existants.
+  \item Les comptes \code{seller} créés en autonomie, si autorisés, restent soumis à activation par l'\code{admin} lorsque cette règle est activée.
+\end{enumerate}
+
+\subsection{Réservation courte du panier et cohérence du stock sous concurrence \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{CUSTOMER} \actorbadge{SYSTEM}
+
+\textbf{Description :} lorsque plusieurs clients poursuivent un paiement en parallèle sur les dernières unités disponibles, le système peut réserver les quantités du panier pour une \textbf{durée limitée} afin de limiter les ventes fantômes. À l'expiration ou en cas de rupture, les lignes concernées sont recalculées et l'utilisateur est informé (\emph{stock faible}, ligne invalidée).
+
+\textbf{User story :} En tant que client, je veux savoir immédiatement si une ligne de mon panier n'est plus garantie afin d'éviter une confirmation de commande incohérente avec le stock réel.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Les quantités réservées ne peuvent pas dépasser le stock physiquement disponible selon les règles de lot et d'entrepôt.
+  \item En cas de concurrence, le système arbitre de façon déterministe ou documentée ; aucun stock négatif silencieux.
+  \item Les messages côté panier et paiement expliquent l'action attendue : rafraîchir, réduire la quantité ou abandonner la ligne.
+\end{enumerate}
+
+\subsection{Coupons et codes promotionnels \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{CUSTOMER}
+
+\textbf{Description :} l'\code{admin} crée et gère des coupons (montant ou pourcentage, périmètre produits ou catalogue, dates de validité, quotas éventuels). Le client saisit un code au moment du paiement ; la réduction est appliquée de façon traçable sur le total ou les lignes concernées.
+
+\textbf{User story :} En tant qu'administrateur, je veux piloter des campagnes promotionnelles via des codes afin d'animer les ventes sans casser la cohérence des prix et des taxes.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Un coupon invalide, expiré ou hors périmètre est refusé avec un message clair.
+  \item Les règles de cumul (avec autres remises éventuelles) sont figées et documentées.
+  \item Chaque utilisation est reliée à une commande ou à une tentative tracée pour audit.
+\end{enumerate}
+
+\subsection{Préparation des commandes par le Seller \phase{[MVP]}}
+\textbf{Acteurs :} \actorbadge{SELLER}
+
+\textbf{Description :} le \code{seller} dispose d'une vue des commandes à traiter sur son périmètre : file des demandes, passage par des statuts du type \emph{à préparer}, \emph{en cours}, \emph{prêt}, alignés sur le workflow global validé avec l'\code{admin}.
+
+\textbf{User story :} En tant que seller, je veux voir les commandes à préparer et mettre à jour leur état afin d'organiser la préparation physique avant remise ou expédition.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Seules les commandes pertinentes pour le point de vente ou le rôle du \code{seller} sont listées.
+  \item Les transitions de statut respectent le workflow cible et sont journalisées.
+  \item Les blocages (stock, paiement en attente) sont visibles sans permettre une préparation incohérente.
+\end{enumerate}
+
+\subsection{Vendeurs partenaires sans vitrine web propre \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SELLER}
+
+\textbf{Description :} des vendeurs externes peuvent confier la vente de leur marchandise via la plateforme sans site internet dédié. L'\code{admin} formalise le rattachement (catalogue, conditions, répartition des gains).
+
+\textbf{User story :} En tant qu'administrateur, je veux enregistrer des partenaires et leurs conditions afin d'étendre l'offre tout en maîtrisant les reversements et les stocks attribués.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Chaque partenaire a un profil identifiable et des règles contractuelles minimalistes stockées.
+  \item Les produits ou lots associés restent traçables jusqu'à la vente et au paiement.
+  \item Les accès des partenaires ou de leurs opérateurs suivent le \code{RBAC}.
+\end{enumerate}
+
+\subsection{Rémunération des Sellers : commission ou rémunération fixe \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SELLER}
+
+\textbf{Description :} les gains d'un \code{seller} peuvent suivre un \textbf{pourcentage} défini par l'\code{admin} sur les ventes réalisées et/ou une \textbf{rémunération fixe périodique} selon le contrat. Les montants dus sont consultables par le \code{seller} et paramétrables par l'\code{admin}.
+
+\textbf{User story :} En tant que seller, je veux consulter mes gains par période et par commande afin de rapprocher avec mes versements réels.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Les barèmes sont versionnés ou datés ; les changements n'altèrent pas rétroactivement les périodes déjà closes sauf correction métier tracée.
+  \item Le détail est exploitable pour la relation avec la comptabilité interne.
+\end{enumerate}
+
+\subsection{Seuils de crédit tolérables et alertes de dépassement \phase{[V1]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SYSTEM}
+
+\textbf{Description :} au-delà du carnet de crédit transactionnel, l'\code{admin} définit des \textbf{seuils d'encours} tolérables par client ou par segment. Un dépassement génère ou escalade une \textbf{alerte} dans le back-office.
+
+\textbf{User story :} En tant qu'administrateur, je veux être alerté lorsque l'exposition crédit dépasse le niveau acceptable afin d'agir avant un incident de recouvrement.
+
+\textbf{Critères d'acceptation :}
+\begin{enumerate}
+  \item Les seuils sont configurables et identifiables (montant, ratio ou autre règle figée par le projet).
+  \item Les alertes sont consultables, filtrables et peuvent être marquées comme traitées.
+\end{enumerate}
+
+\subsection{Recommandations avancées, BI temps réel et automatisation supply \phase{[V2+]}}
+\textbf{Acteurs :} \actorbadge{ADMIN} \actorbadge{SYSTEM}
+
+\textbf{Description :} la phase \code{V2+} ouvre des fonctions plus avancées et différenciantes. Chaque brique livrée possède ses propres critères d'acceptation validés pendant le cadrage \code{V2+}.
+
+\textbf{User story :} En tant qu'administrateur, je veux exploiter des recommandations avancées, des indicateurs temps réel et des automatisations supply afin d'améliorer les décisions opérationnelles après stabilisation du socle produit.
+
+\section{Pages prévues}
+\begin{longtable}{>{\bfseries}p{4.1cm}p{10.1cm}}
+\toprule
+Page & Objectif principal \\
+\midrule
+\endfirsthead
+\toprule
+Page & Objectif principal \\
+\midrule
+\endhead
+\code{Connexion} & Authentification sécurisée par rôle. Le mode visiteur permet seulement la consultation publique du catalogue et des fiches produits. \\
+\code{Inscription} & Créer un compte \code{customer} ou, selon les règles du projet, amorcer une demande de compte \code{seller} soumise à validation admin. \\
+\code{Accueil / catalogue} & Liste des produits, catégories, recherche et pagination, accessible en mode visiteur pour les contenus publics. \\
+\code{Fiche produit} & Afficher le prix et un état de disponibilité sans exposer la ville ni la quantité exacte. \\
+\code{Panier} & Garder un contenu persistant entre les visites ; afficher les états liés à la disponibilité et, en \code{V1}, aux réservations temporaires. \\
+\code{Paiement / confirmation} & Permettre le passage de commande et afficher un message de confirmation ; saisie de code coupon en \code{V1}. \code{MVP} : workflow interne sans intégration d'un prestataire externe. \\
+\code{Suivi de commande} & Afficher les statuts visibles pour le client. \\
+\code{Tableau de bord admin} & Donner une synthèse opérationnelle. \\
+\code{Produits / catégories (admin)} & Créer, modifier et supprimer les produits et catégories avec \code{CRUD}. \\
+\code{Comptes Seller (admin)} & Créer, consulter, modifier, activer, désactiver ou supprimer les comptes utilisateurs portant le rôle \code{seller}. \\
+\code{Stocks / lots (admin)} & Montrer le stock de l'entrepôt principal Marrakech par lot, le \code{FIFO} local, l'import d'achat en \code{EUR} ou \code{MAD} avec taux figé et, en \code{V1}, l'extension multi-entrepôts et le prix de vente par lot. \\
+\code{Fournisseurs / achats (admin)} & Gérer les fiches fournisseurs, les commandes d'achat, le suivi \code{crédit} vs \code{paiement anticipé} et le lien avec les lots. \code{V1}. \\
+\code{Commandes (admin)} & Lister les commandes, voir le détail et changer les statuts. \\
+\code{Alertes (admin)} & Lister et traiter les alertes de rupture, de stock faible, de péremption et, en \code{V1}, les alertes crédit hors seuil ou tensions de stock liées aux réservations. \\
+\code{Coupons (admin)} & Créer et gérer les codes promotionnels et leurs règles. \code{V1}. \\
+\code{Facturation et rapprochements (admin)} & En \code{V1}, suivre les encaissements via prestataire et les reversements périodiques des sellers vers la plateforme. \\
+\code{Partenaires (admin)} & Gérer les vendeurs tiers sans site dédié et leurs conditions. \code{V1}. \\
+\code{Commandes à préparer (seller)} & Vue opérationnelle : file des demandes, préparation, statuts jusqu'à prêt. \\
+\code{Gains vendeur (seller)} & Consulter commissions ou rémunération fixe par période et par commande. \code{V1}. \\
+\code{Scan - réception / vente} & Afficher les écrans d'opération, le résultat et l'action lancée. \\
+\bottomrule
+\end{longtable}
+
+\section{Inventaire détaillé des routes et fichiers écran}
+Les chemins d'URL exacts, les statuts d'implémentation (\emph{fait}, \emph{en cours}, \emph{à faire}) et la correspondance avec les dossiers du frontend sont tenus à jour dans \code{docs/v2/README\_Pages\_v3\_.md}. Ce fichier complète la présente section sans la remplacer : le CDC fixe l'intention fonctionnelle ; l'inventaire \code{Markdown} fixe la granularité technique des écrans.
+
+\section{Pages optionnelles ou hors MVP}
+\begin{longtable}{>{\bfseries}p{4cm}p{3cm}p{7cm}}
+\toprule
+Page & Statut & Objectif principal \\
+\midrule
+\endfirsthead
+\toprule
+Page & Statut & Objectif principal \\
+\midrule
+\endhead
+\code{Profil client} & Optionnel MVP / V1 & Permettre au client de consulter et modifier ses informations personnelles. \\
+\code{Wishlist} & Optionnel & Permettre au client d'enregistrer des produits favoris. \\
+\code{Comparaison produits} & Optionnel & Comparer plusieurs produits avant achat. \\
+\code{Facturation admin} & Optionnel V1 & Suivre les paiements, factures et statuts financiers ; inclure en \code{V1} le suivi des versements sellers \(\rightarrow\) plateforme. \\
+\code{Audit admin} & V1 & Consulter les actions sensibles et l'historique système. \\
+\code{Paramètres rôles} & V1 & Gérer plus finement les permissions si le \code{RBAC} simple devient insuffisant. \\
+\code{Paramètres rémunération sellers} & V1 & Définir pourcentages par défaut, rémunérations fixes ou exceptions par partenaire ou par seller. \\
+\code{Paramètres seuils crédit} & V1 & Configurer les encours maximum ou règles d'alerte lorsque le crédit client dépasse le seuil tolérable. \\
+\code{Paramètres paiement} & V1 & Configurer Cash Plus, Stripe ou un autre prestataire selon l'évolution retenue ; paramétrer en \code{V1} les modes où le seller conserve l'encaissement et reverse la plateforme en fin de période. \\
+\code{Paramètres livraison} & V1 & Définir les méthodes, zones et frais de livraison. \\
+\code{Paramètres taxe} & Optionnel V1 & Gérer les règles fiscales si elles deviennent nécessaires. \\
+\code{Paramètres seuils} & MVP / V1 & Régler les seuils d'alerte de stock faible, rupture et péremption. \\
+\code{Inventaire seller} & MVP & Permettre au vendeur local de consulter ou vérifier le stock disponible. \\
+\code{Mouvements seller} & MVP & Suivre les entrées, sorties, corrections et transferts de stock. \\
+\code{Transferts seller} & V1 & Gérer les transferts entre sites ou entrepôts. \\
+\code{Routes dev} & Hors produit & Page technique réservée au développement, non visible en production. \\
+\bottomrule
+\end{longtable}
+
+\section{Principes UX/UI}
+L'interface doit respecter trois principes simples :
+\begin{itemize}
+  \item le parcours reste simple et lisible ;
+  \item les messages d'erreur sont clairs ;
+  \item les écrans s'adaptent à chaque rôle.
+\end{itemize}
+
+\chapter{Règles métier}
+
+\begin{businessrulebox}[Règle d'or]
+\highlight{Aucun stock fantôme.} Chaque mouvement important doit être explicite, traçable et cohérent.
+\end{businessrulebox}
+
+\section{Règles de devise : conversion, affichage et arrondis}
+\begin{businessrulebox}[Devise et conversion]
+\begin{itemize}
+  \item La conversion s'applique à l'entrée du lot.
+  \item Chaque lot garde son propre taux. Un changement de taux plus tard ne modifie pas les lots déjà enregistrés.
+  \item Les achats fournisseurs peuvent être saisis soit en \code{EUR}, soit en \code{MAD}.
+  \item Si l'achat fournisseur est saisi en \code{MAD}, le taux de change figé est \code{1}.
+  \item Les ventes sont en \code{MAD}.
+  \item Le coût en \code{MAD} du lot est calculé et traçable.
+\end{itemize}
+\end{businessrulebox}
+
+\section{Règles FIFO : entrée et sortie de stock}
+\begin{businessrulebox}[FIFO local]
+\begin{itemize}
+  \item La vente consomme les lots du plus ancien au plus récent dans l'entrepôt où la marchandise sort.
+  \item \highlight{Le \code{FIFO} est local.} En \code{MVP}, il s'applique à l'entrepôt principal Marrakech ; en \code{V1}, il pourra s'appliquer à chaque entrepôt de sortie.
+  \item Le \code{FIFO} est strict sur la date d'entrée du lot dans l'entrepôt concerné.
+  \item En vente unité par unité, chaque unité vendue retire la quantité sur le lot \code{FIFO} courant jusqu'à épuisement du lot.
+  \item Le système ne saute pas un lot tant que le lot courant a du stock disponible, sauf règle d'indisponibilité comme péremption ou blocage.
+  \item Chaque sortie doit rester explicable dans l'historique avec des mouvements liés.
+\end{itemize}
+\end{businessrulebox}
+
+\section{Règles fournisseurs et conditions d'achat}
+\begin{businessrulebox}[Fournisseurs et achats]
+\begin{itemize}
+  \item Chaque achat est rattaché à un fournisseur.
+  \item Chaque achat suit au minimum un mode de règlement : \code{crédit} ou \code{paiement anticipé}.
+  \item En \code{crédit}, le système trace la dette fournisseur et les échéances si elles existent.
+  \item En \code{paiement avant réception}, le paiement peut être enregistré avant l'entrée physique en stock.
+  \item Les transitions comme \code{commandé -> payé -> reçu} utilisent des statuts à valeurs fixes.
+  \item Il ne doit exister aucun stock sans mouvement explicite.
+\end{itemize}
+\end{businessrulebox}
+
+\section{Règles de prix de vente multi-lots}
+\begin{businessrulebox}[Moyenne pondérée comme recommandation]
+Un même produit peut avoir plusieurs lots en parallèle. Ces lots peuvent avoir des prix de vente unitaires en \code{MAD} différents.
+
+Quand plusieurs lots d'un même produit sont en stock, le système calcule une recommandation de prix de référence par moyenne pondérée :
+
+\begin{equation}
+P_{\mathrm{ref}} =
+\frac{\sum_i\left(\mathrm{prix\_vente\_lot}_i \times \mathrm{qty\_restante}_i\right)}
+{\sum_i \mathrm{qty\_restante}_i}
+\end{equation}
+
+Cette formule sert \highlight{d'aide à la décision pour l'\code{admin}.} Elle ne force pas automatiquement le prix affiché au client. L'\code{admin} peut décider de garder un prix catalogue stable, même si la recommandation évolue après une entrée, une vente ou un transfert.
+\end{businessrulebox}
+
+\section{Règles MVP mono-entrepôt et extension multi-entrepôts}
+\begin{businessrulebox}[Flux MVP : entrepôt principal Marrakech]
+\begin{itemize}
+  \item Pour le \code{MVP}, le stock opérationnel est géré sur un entrepôt principal unique à Marrakech.
+  \item Les règles de lot, de \code{FIFO} local et de traçabilité restent inchangées dans ce périmètre mono-entrepôt.
+  \item L'architecture doit permettre une extension \code{V1} vers du multi-entrepôts avec transferts internes traçables, non comptabilisés comme ventes.
+\end{itemize}
+\end{businessrulebox}
+
+\section{Règles d'alerte}
+\begin{businessrulebox}[Alertes]
+\begin{itemize}
+  \item Les seuils sont réglables par l'équipe.
+  \item Les cas critiques ressortent clairement dans l'administration.
+\end{itemize}
+\end{businessrulebox}
+
+\section{Règles de commande, annulation et retour}
+\begin{businessrulebox}[Cycle de commande]
+Le parcours cible des commandes est :
+\begin{lstlisting}
+draft -> paid -> preparing -> shipped -> delivered
+draft -> paid -> preparing -> shipped -> cancelled
+\end{lstlisting}
+
+\begin{itemize}
+  \item Si l'annulation intervient avant la sortie physique de l'entrepôt, aucun mouvement de stock de sortie n'est impacté.
+  \item Si l'annulation intervient après la sortie physique de l'entrepôt, elle suit le processus de retour produit.
+  \item \highlight{Tout retour produit génère la création d'un \code{lot de retour} spécifique.}
+  \item Ce lot facilite le traçage, les statistiques de volume retourné et la réévaluation éventuelle du prix par l'\code{admin}.
+  \item Le \code{lot de retour} garde le lien avec la commande d'origine, le produit, la quantité retournée, la date et le motif quand il est disponible.
+\end{itemize}
+\end{businessrulebox}
+
+\section{Règles du carnet de crédit clients (\code{V1})}
+\begin{businessrulebox}[Modèle transactionnel du crédit client]
+\begin{itemize}
+  \item Le crédit client représente un montant dû par un client après validation d'une commande.
+  \item Chaque crédit doit être rattaché à une commande ou à une opération explicite.
+  \item \highlight{Le solde est calculé par la somme des lignes transactionnelles} : une dette est enregistrée avec un montant positif et un remboursement avec un montant négatif.
+  \item Chaque ligne de crédit doit enregistrer au minimum la date, le client, le montant, le type d'opération et la référence de commande ou de paiement quand elle existe.
+  \item Un paiement partiel crée une ligne de remboursement avec la date, le montant, le mode de paiement et l'utilisateur ayant enregistré l'opération.
+  \item Le statut du crédit suit des valeurs fixes : \code{en\_cours}, \code{paye}, \code{en\_retard}, \code{annule}.
+\end{itemize}
+\end{businessrulebox}
+
+\begin{businessrulebox}[Réservation de panier et arbitrage concurrentiel (\code{V1})]
+\begin{itemize}
+  \item Une réservation temporaire ne libère pas la marchandise pour d'autres paniers tant qu'elle est valide, dans les limites du stock réel par lot et par entrepôt.
+  \item À l'expiration du délai ou après abandon du paiement, les quantités redeviennent disponibles sans laisser de mouvement de stock ambigu.
+  \item Si plusieurs clients demandent les dernières unités, le système applique la politique d'arbitrage documentée ; le client évincé reçoit une information explicite (\emph{stock faible}, ligne retirée ou quantité réduite).
+\end{itemize}
+\end{businessrulebox}
+
+\begin{businessrulebox}[Coupons (\code{V1})]
+\begin{itemize}
+  \item Un coupon réduit le montant dû selon des règles fixes ; la base taxable ou les frais concernés suivent la configuration validée par l'\code{admin}.
+  \item Toute application ou refus de coupon est traçable sur la commande ou la tentative de commande.
+\end{itemize}
+\end{businessrulebox}
+
+\begin{businessrulebox}[Reversements seller \(\rightarrow\) plateforme (\code{V1})]
+\begin{itemize}
+  \item Les montants détenus localement par un \code{seller} puis reversés à la plateforme sont enregistrés comme opérations financières distinctes des paiements client lorsque le modèle le impose.
+  \item Les rapprochements avec les commandes réalisées restent auditables sur une période donnée.
+\end{itemize}
+\end{businessrulebox}
+
+\chapter{Cadre technique}
+
+\section{Entités de référence}
+\begin{longtable}{>{\bfseries}p{4.4cm}p{9.6cm}}
+\toprule
+Entité & Description \\
+\midrule
+\endfirsthead
+\toprule
+Entité & Description \\
+\midrule
+\endhead
+User & Identité, email, mot de passe hashé, rôle et dates. \\
+Category & Nom de catégorie. \\
+Product & Nom, \code{SKU}, catégorie et prix de vente par défaut. \\
+Supplier & Identité, coordonnées, conditions de paiement par défaut, crédit ou anticipé, statut. \\
+PurchaseOrder / SupplierOrder & Fournisseur, dates, statuts, montants et lien vers les lots ou réceptions. \\
+SupplierPayment & Acomptes, paiements, échéances et rapprochements avec la commande fournisseur. \\
+Warehouse & Entrepôt et ville. \\
+Lot & Produit, entrepôt, quantités, devise d'achat, taux figé vers \code{MAD}, dates d'entrée et de péremption, prix de vente unitaire, lien fournisseur ou achat. \\
+StockMovement & Type, quantité, entrepôt source, entrepôt destination si transfert, et lien vers une commande, un retour ou une autre référence. \\
+Cart, Order, OrderItem & Panier et commande. \\
+CustomerCredit & Client, commande liée, statut, date d'échéance optionnelle et solde calculé depuis les lignes transactionnelles. \\
+CustomerCreditPayment / CustomerCreditEntry & Ligne de dette ou de remboursement liée à un crédit client. \\
+Alert & Type, gravité, message et état lu ou non. \\
+ExchangeRate & Devises, taux et date d'effet. \\
+PaymentEvent & Source de paiement, par exemple workflow interne en \code{MVP} puis prestataire en ligne en \code{V1}, type d'événement et idempotence. \\
+Coupon & Code promo, type de réduction, périmètre produits ou catalogue, fenêtre de validité, plafonds d'usage. \\
+CouponRedemption & Lien coupon-commande ou panier, montant appliqué, horodatage. \\
+PartnerProfile & Vendeur tiers sans vitrine propre : identité, statut, conditions commerciales minimales. \\
+SellerCompensationRule & Barème de commission (\%) ou rémunération fixe par période, rattachement seller ou partenaire. \\
+PlatformRemittance & Versement du seller vers la plateforme : montant, date, mode, rapprochement avec les ventes concernées. \\
+CreditThresholdConfig & Seuil d'encours ou règle équivalente pour déclencher des alertes crédit. \\
+CartReservation & \code{V1} : verrou temporaire des lignes de panier, échéance, lien utilisateur ou session. \\
+\bottomrule
+\end{longtable}
+
+\section{Produit, lot, stock et commande}
+\begin{itemize}
+  \item \textbf{Product} porte les informations visibles par le client.
+  \item Certains champs de \textbf{Product} servent de valeurs par défaut à la création d'un lot.
+  \item Le prix affiché peut venir d'un prix catalogue stable décidé par l'\code{admin}. La moyenne pondérée sert de recommandation de prix.
+  \item \textbf{Lot} est la vérité opérationnelle pour les quantités, le coût au taux figé, le prix de vente, le rattachement fournisseur ou achat, le \code{FIFO} et la péremption.
+  \item Les ventes et les mouvements s'appuient sur les lots, pas seulement sur la fiche produit.
+  \item Les transferts inter-entrepôts conservent la traçabilité du lot d'origine et ne sont pas des ventes.
+\end{itemize}
+
+\section{Relations et règles de cohérence}
+\begin{itemize}
+  \item Les identifiants sont uniques.
+  \item Les dates de création et de mise à jour sont conservées.
+  \item Les statuts utilisent des valeurs fixes documentées.
+  \item Les événements importants laissent des traces.
+\end{itemize}
+
+\section{Interfaces et intégrations externes}
+\begin{itemize}
+  \item Paiement \code{MVP} : workflow interne sans intégration d'un prestataire externe. Cash Plus, Stripe ou équivalent peuvent être étudiés en \code{V1}.
+  \item \code{V1} : lorsque le seller conserve les encaissements clients, les reversements vers le compte bancaire de la plateforme peuvent être saisis ou importés manuellement dans un premier temps ; l'automatisation pourra suivre.
+  \item E-mails automatiques : confirmation et autres messages utiles.
+  \item API de taux de change : optionnelle et hors \code{MVP} si elle n'est pas indispensable.
+\end{itemize}
+
+\section{Stack technologique retenue}
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+Couche & Technologie \\
+\midrule
+Front & \code{React} \\
+Back & \code{Express} (\code{Node.js}) \\
+Base de données & \code{PostgreSQL} \\
+Stockage fichiers & \code{MinIO} \\
+Conteneurisation & \code{Docker} et \code{Docker Compose} \\
+API & \code{REST} versionnée \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Stratégie de stockage des images}
+Les images ne seront pas stockées en \code{BLOB} dans \code{PostgreSQL}. Nous utiliserons un stockage objet \code{MinIO}. \code{PostgreSQL} gardera seulement les métadonnées.
+
+\textbf{Métadonnées stockées :}
+\begin{itemize}
+  \item \code{id}
+  \item \code{objectKey}
+  \item \code{mimeType}
+  \item \code{size}
+  \item \code{ownerId}
+  \item \code{createdAt}
+  \item \code{updatedAt}
+\end{itemize}
+
+\textbf{Flux fonctionnel résumé :}
+\begin{enumerate}
+  \item L'utilisateur envoie l'image, ou demande une \code{URL} d'upload signée.
+  \item Le backend \code{Express} valide le fichier.
+  \item Le backend \code{Express} compresse l'image et la transforme automatiquement au format \code{WebP}.
+  \item Le fichier optimisé est stocké dans \code{MinIO}.
+  \item Le backend enregistre les métadonnées dans \code{PostgreSQL}.
+  \item L'application \code{React} consomme l'\code{URL} ou la clé pour afficher l'image.
+\end{enumerate}
+
+\section{Architecture logique}
+\begin{itemize}
+  \item Le site public et l'administration sont séparés côté usage.
+  \item L'API \code{Express} est centrale.
+  \item Les règles métier ne doivent pas rester dans de simples routes ou middlewares \code{HTTP} sans service métier dédié.
+  \item La base \code{PostgreSQL} est structurée avec des migrations versionnées.
+\end{itemize}
+
+\section{Conteneurisation et environnements}
+Le projet s'exécute en conteneurs pour standardiser les environnements de développement, de test et de déploiement.
+
+\textbf{Services minimaux :}
+\begin{itemize}
+  \item \code{frontend} pour l'application \code{React}
+  \item \code{backend} pour l'API \code{Express}
+  \item \code{db} pour \code{PostgreSQL}
+  \item \code{minio} pour le stockage objet
+\end{itemize}
+
+\section{Organisation des dossiers}
+\begin{lstlisting}
+frontend/
+backend/
+docs/
+\end{lstlisting}
+
+\section{Exigences non fonctionnelles}
+\begin{itemize}
+  \item \textbf{Performance cible :} le temps de réponse doit rester adapté à l'usage réel.
+  \item \textbf{Performance MVP :} objectif indicatif \code{p95 ~= 500 ms} sur les parcours courants.
+  \item \textbf{Scalabilité :} la structure doit pouvoir grandir dès le \code{MVP}.
+  \item \textbf{Fiabilité :} il n'y a pas d'engagement \code{SLA} de production dans le \code{MVP}.
+  \item \textbf{Qualité :} le code doit rester clair, testé et documenté.
+\end{itemize}
+
+\section{API REST : principes de conception}
+\begin{itemize}
+  \item Le préfixe de version est \code{/api/v1}.
+  \item Les échanges utilisent \code{JSON}.
+  \item Les erreurs restent uniformes.
+  \item Le schéma \code{OpenAPI} ou \code{Swagger} sert de référence.
+  \item Les familles d'URL couvrent l'authentification, le catalogue, le panier, les commandes, les stocks, lots, alertes et, en \code{V1}, le carnet de crédit clients ainsi que les intégrations de paiement externe.
+\end{itemize}
+
+\section{Conformité et protection des données}
+\begin{itemize}
+  \item Les mots de passe utilisent un hash robuste.
+  \item Le système protège les sessions avec \code{JWT} et refresh token.
+  \item Les entrées sont validées pour limiter les injections.
+  \item Les règles \code{CORS} et les en-têtes de sécurité sont en place.
+  \item Les actions sensibles sont journalisées.
+  \item Les rôles suivent le principe du moindre privilège.
+  \item Les données personnelles sont traitées selon la politique SPLINEDGE et les exigences comme le \code{RGPD}.
+\end{itemize}
+
+\section{Tests et validation}
+\textbf{Stratégie de tests :}
+\begin{itemize}
+  \item tests unitaires pour les règles métier ;
+  \item tests d'intégration pour l'API et la base ;
+  \item tests \code{E2E} pour les parcours clés ;
+  \item tests de non-régression pendant les évolutions.
+\end{itemize}
+
+\textbf{Scénarios critiques :}
+\begin{itemize}
+  \item import de lot avec devise ;
+  \item vente \code{FIFO} local multi-lots ;
+  \item cohérence du stock sur l'entrepôt principal Marrakech ;
+  \item retour produit avec création d'un \code{lot de retour} ;
+  \item rupture et alerte ;
+  \item commande, annulation et statuts ;
+  \item paiement \code{MVP} selon le workflow interne sans prestataire externe ;
+  \item en \code{V1} : carnet de crédit avec lignes de dette et de remboursement ;
+  \item en \code{V1} : coupon valide sur une commande, coupon refusé avec message explicite ;
+  \item en \code{V1} : scénario concurrent sur dernières unités avec réservation ou arbitrage documenté ;
+  \item en \code{V1} : seuil de crédit dépassé et présence d'une alerte exploitable par l'\code{admin}.
+\end{itemize}
+
+\chapter{Organisation du projet}
+
+\section{Ordre de développement recommandé}
+\begin{enumerate}
+  \item base projet et vitrine ;
+  \item connexion et rôles ;
+  \item catalogue et panier ;
+  \item commande et statuts ;
+  \item lots, devise et \code{FIFO} local ;
+  \item stock central Marrakech et alertes ;
+  \item scan ;
+  \item workflow de paiement interne pour le \code{MVP} ;
+  \item renforcement qualité : tests, sécurité et performance.
+\end{enumerate}
+
+\section{Planning indicatif}
+\begin{table}[h]
+\centering
+\begin{tabular}{cl}
+\toprule
+\# & Étape \\
+\midrule
+1 & Cadrage détaillé \\
+2 & Réalisation \code{MVP} \\
+3 & Validation et ajustements \\
+4 & Préparation \code{V1} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Livrables par phase}
+\begin{itemize}
+  \item code source dans un dépôt versionné ;
+  \item documentation technique et fonctionnelle ;
+  \item jeux de tests et compte-rendu de validation ;
+  \item guide d'exploitation initial.
+\end{itemize}
+
+\section{Gouvernance projet}
+\begin{itemize}
+  \item Un point régulier, par exemple hebdomadaire, valide les jalons.
+  \item Les changements importants demandent un arbitrage explicite.
+  \item La version du CDC est incrémentée quand le périmètre ou un jalon majeur change.
+\end{itemize}
+
+\section{Risques et plans de mitigation}
+\begin{vigilancebox}[Points de vigilance]
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X X}
+\toprule
+Zone & Risque & Atténuation \\
+\midrule
+Lots / \code{FIFO} & Erreurs de stock, erreurs de coût ou bugs tardifs si la règle de consommation par entrepôt est mal implémentée. & Tests dédiés, recette métier et règles documentées autour du \code{FIFO} local par entrepôt. \\
+Périmètre & Trop de demandes parallèles. & Priorités MoSCoW figées par jalon et arbitrage du superviseur. \\
+Paiement & Retard de validation, incohérences de rapprochement et doubles traitements. & Workflow documenté, idempotence et tests. \\
+Données & Démos peu fiables. & Seeds reproductibles et contrôles de cohérence. \\
+Montée en charge & \code{MVP} trop limité. & Modules découpés, API versionnée et mesure avant optimisation. \\
+\bottomrule
+\end{tabularx}
+\end{vigilancebox}
+
+\section{Plan de démarrage projet}
+\textbf{Checklist de lancement :}
+\begin{itemize}
+  \item dépôt et branches ;
+  \item variables d'environnement ;
+  \item base \code{PostgreSQL} ;
+  \item démarrage des services avec \code{Docker Compose} ;
+  \item migrations de schéma \code{PostgreSQL} appliquées ;
+  \item lancement front \code{React} et back \code{Express} selon le \code{README} ;
+  \item comptes de test pour les rôles \code{admin}, \code{customer} et \code{seller} ;
+  \item décision \code{MVP} confirmée sur un workflow de paiement interne sans prestataire externe.
+\end{itemize}
+
+\chapter{Glossaire}
+\begin{longtable}{>{\bfseries}p{4.2cm}p{9.8cm}}
+\toprule
+Terme & Définition \\
+\midrule
+\endfirsthead
+\toprule
+Terme & Définition \\
+\midrule
+\endhead
+AuthN & Vérifier qui est l'utilisateur. \\
+AuthZ & Vérifier ce que l'utilisateur a le droit de faire. \\
+FIFO & Premier entré, premier sorti, pour les lots de stock. Dans ce projet, le \code{FIFO} est local à l'entrepôt de sortie. \\
+Moyenne pondérée (prix) & Recommandation de prix calculée à partir des prix par lot, pondérée par les quantités restantes. \\
+Fournisseur & Tiers qui vend la marchandise à SPLINEDGE, avec conditions de paiement \code{crédit} ou \code{anticipé}. \\
+Idempotence & Refaire la même opération ne crée pas un effet en double. \\
+JWT & Jeton signé pour représenter une session ou des droits. \\
+MVP & Première version limitée mais utilisable pour valider l'essentiel. \\
+OpenAPI & Description formelle de l'API, souvent via \code{Swagger}. \\
+RGPD & Règlement européen sur la protection des données personnelles. \\
+SLA & Engagement sur la qualité de service, comme la disponibilité ou les délais. \\
+Webhook & Message \code{HTTP} automatique envoyé par un service tiers, par exemple un service de paiement. \\
+\bottomrule
+\end{longtable}
+
+\end{document}
