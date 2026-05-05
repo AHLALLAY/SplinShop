@@ -5,7 +5,6 @@ import db from './databases/connection.js';
 // constants
 const PORT = process.env.PORT || 3000;
 const API_BASE_URL = process.env.API_BASE_URL || '/api/v1';
-const URI = process.env.DATABASE_URL;
 
 const app = express();
 

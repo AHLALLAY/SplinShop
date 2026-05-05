@@ -1,14 +1,6 @@
 # --------------------------------- DÉPENDANCES ---------------------------------
 node_modules/
-
-# --------------------------------- NEXT.JS & BUILD OUTPUT ---------------------------------
-.next/
-out/
-build/
-dist/
-*.tsbuildinfo
-next-env.d.ts
-.vercel/
+backend/generated/prisma
 
 # --------------------------------- ENVIRONNEMENT & SÉCURITÉ ---------------------------------
 .env
@@ -36,6 +28,7 @@ coverage/
 
 # --------------------------------- SYSTÈME D'EXPLOITATION (OS) ---------------------------------
 .DS_Store
+Thumbs.db
 
 # --------------------------------- IDEs & ÉDITEURS ---------------------------------
 .idea/
@@ -52,5 +45,7 @@ coverage/
 !.vscode/extensions.json
 
 # --------------------------------- AUTRES ---------------------------------
+dist/
+build/
 docs/*
 !docs/*.tex
