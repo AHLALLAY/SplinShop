@@ -1,13 +1,15 @@
-export default class Authentification{
-    async login(){
+class Authentification {
+    async login(e) {
+        e.preventDefault();
+    }
+
+    async register() {
 
     }
 
-    async register(){
-
-    }
-
-    logout(){
+    logout() {
 
     }
 }
+
+export default new Authentification();
