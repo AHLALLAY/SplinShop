@@ -8,7 +8,7 @@ async function useEndPoint(endpoint, method = "GET", body = null, token = localS
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
         const requestBody = body ? JSON.stringify(body) : null;
-        const url = endpoint.startsWith(process.env.VITE_API_URL) ? endpoint : `${VITE_API_URL}${endpoint}`;
+        const url = endpoint.startsWith(import.meta.env.VITE_API_URL) ? endpoint : `${import.meta.env.VITE_API_URL}${endpoint}`;
         const response = await fetch(url, {
             method: method.toUpperCase(),
             headers: headers,
@@ -24,6 +24,8 @@ async function useEndPoint(endpoint, method = "GET", body = null, token = localS
         return data;
     } catch (err) {
         console.error(`API ERROR :${err}`);
-        throw error;
+        throw err;
     }
 }
+
+export default useEndPoint;
