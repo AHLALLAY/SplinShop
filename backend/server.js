@@ -11,6 +11,11 @@ const API_BASE_URL = process.env.API_BASE_URL || '/api/v1';
 const app = express();
 
 app.use(express.json());
+app.use(cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
 // routes
 app.use(`${API_BASE_URL}/auth`, authRoute)
