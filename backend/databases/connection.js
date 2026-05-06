@@ -1,14 +1,15 @@
 import { PrismaClient } from '../generated/prisma/index.js';
 import { PrismaPg } from '@prisma/adapter-pg';
-/**
- * Prisma n'a pas besoin qu'on lui passe l'URI en paramètre.Il utilise nativement
- * la variable 'DATABASE_URL du fichier .env'
-*/
+import pg from 'pg';
 
-const dbUrl = process.env.DATABASE_URL;
-const adapter = new PrismaPg({clientUrl: dbUrl})
-const prisma = new PrismaClient({adapter});
+const { Pool } = pg;
 
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 class Connection {
     constructor() {
         this.prisma = prisma;
