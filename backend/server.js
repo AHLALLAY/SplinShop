@@ -1,6 +1,7 @@
 import express from 'express';
 import 'dotenv/config';
 import db from './databases/connection.js';
+import createDefaultAdmin from './utils/addAdmin.js';
 import authRoute from './routes/auth/auth.routes.js';
 
 // constants
@@ -20,7 +21,7 @@ const run = async () => {
         await db.connectToDb();
 
         // creating defealt admin
-
+        await createDefaultAdmin();
 
         // listening
         app.listen(PORT, () => {
