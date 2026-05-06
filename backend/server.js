@@ -1,6 +1,7 @@
 import express from 'express';
 import 'dotenv/config';
 import db from './databases/connection.js';
+import authRoute from './routes/auth/auth.routes.js';
 
 // constants
 const PORT = process.env.PORT || 3000;
@@ -9,6 +10,9 @@ const API_BASE_URL = process.env.API_BASE_URL || '/api/v1';
 const app = express();
 
 app.use(express.json());
+
+// routes
+app.use(`${API_BASE_URL}/auth`, authRoute)
 
 const run = async () => {
     try {
