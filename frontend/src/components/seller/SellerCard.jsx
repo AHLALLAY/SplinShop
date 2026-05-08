@@ -53,9 +53,23 @@ export default function SellerCard({ sellers = [] }) {
                             </div>
 
                             <div className="mt-auto grid grid-cols-1 gap-2 sm:grid-cols-3">
-                                <Button>{"Editer"}</Button>
-                                <Button>{"Supprimer"}</Button>
-                                <Button>{isActive ? "Suspendre" : "Activer"}</Button>
+                                <Button className="bg-sky-600 hover:bg-sky-700 focus-visible:ring-sky-500 shadow-sky-600/20">
+                                    {"Editer"}
+                                </Button>
+
+                                <Button className="bg-red-600 hover:bg-red-700 focus-visible:ring-red-500 shadow-red-600/20">
+                                    {"Supprimer"}
+                                </Button>
+
+                                <Button
+                                    className={
+                                        isActive
+                                            ? "bg-amber-600 hover:bg-amber-700 focus-visible:ring-amber-500 shadow-amber-600/20"
+                                            : "bg-emerald-600 hover:bg-emerald-700 focus-visible:ring-emerald-500 shadow-emerald-600/20"
+                                    }
+                                >
+                                    {isActive ? "Suspendre" : "Activer"}
+                                </Button>
                             </div>
                         </div>
                     </div>
