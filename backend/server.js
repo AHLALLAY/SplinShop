@@ -4,6 +4,7 @@ import 'dotenv/config';
 import db from './databases/connection.js';
 import createDefaultAdmin from './utils/addAdmin.js';
 import authRoute from './routes/auth/auth.routes.js';
+import userRoute from './routes/admin/user.routes.js';
 
 // constants
 const PORT = process.env.PORT || 3000;
@@ -19,7 +20,8 @@ app.use(cors({
 }));
 
 // routes
-app.use(`${API_BASE_URL}/auth`, authRoute)
+app.use(`${API_BASE_URL}/auth`, authRoute);
+app.use(`${API_BASE_URL}/seller`, userRoute);
 
 const run = async () => {
     try {
