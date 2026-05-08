@@ -45,6 +45,12 @@ class UserService {
         });
         return createdSeller;
     }
+
+    async getSellers() {
+        return await db.prisma.user.findMany({
+            where:{role: 'seller'}
+        });
+    }
 }
 
 export default new UserService();

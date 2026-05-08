@@ -17,6 +17,23 @@ class UserController {
             });
         }
     }
+
+    async getSellers(req, res) {
+        try {
+            const sellers = await userService.getSellers();
+            return res.status(200).json({
+                success: true,
+                message: "les vendeurs qui existent",
+                data: sellers,
+            });
+        } catch (err) {
+            return res.status(err.statusCode || 500).json({
+                success: false,
+                message: "les venduers ne sont pas là",
+                error: err.message,
+            });
+        }
+    }
 }
 
 export default new UserController();
