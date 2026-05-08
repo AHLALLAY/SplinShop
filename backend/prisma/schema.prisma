@@ -20,6 +20,11 @@ enum Role {
   admin
 }
 
+enum Status {
+  active
+  suspend
+}
+
 // models
 model User{
   id String @id @default(uuid())
@@ -30,5 +35,6 @@ model User{
   phone String? @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  status Status @default(active)
   isDeleted Boolean @default(false)
 }
