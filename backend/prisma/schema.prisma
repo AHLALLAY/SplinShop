@@ -26,15 +26,27 @@ enum Status {
 }
 
 // models
-model User{
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  password String
-  role Role @default(customer)
-  phone String? @unique
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(customer)
+  phone     String?  @unique
+  status    Status   @default(active)
+  isDeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  status Status @default(active)
-  isDeleted Boolean @default(false)
+}
+
+model Catalog {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  imgUrl      String?
+  description String?
+  status      Status   @default(active)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
