@@ -3,7 +3,7 @@ import userController from "../../controllers/admin/user.controller.js";
 
 const router = express.Router();
 
-router.post('/', userController.addSeller)
-router.get('/', userController.getSellers)
+router.post('/', isAuthenticated, userController.addSeller)
+router.get('/', isAuthenticated, userController.getSellers)
 
 export default router;
