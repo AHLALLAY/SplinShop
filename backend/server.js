@@ -5,6 +5,7 @@ import db from './databases/connection.js';
 import createDefaultAdmin from './utils/addAdmin.js';
 import authRoute from './routes/auth/auth.routes.js';
 import userRoute from './routes/admin/user.routes.js';
+import catalogRoute from './routes/admin/catalog.routes.js';
 
 // constants
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use(cors({
 // routes
 app.use(`${API_BASE_URL}/auth`, authRoute);
 app.use(`${API_BASE_URL}/seller`, userRoute);
+app.use(`${API_BASE_URL}/catalog`, catalogRoute);
 
 const run = async () => {
     try {
@@ -36,9 +38,10 @@ const run = async () => {
             console.info(`server running on http://localhost:${PORT}/`);
         });
     } catch (e) {
-        console.error(e.message);
+        console.error(e);
+        process.exit(1);
     }
-}
+};
 
 run();
 
