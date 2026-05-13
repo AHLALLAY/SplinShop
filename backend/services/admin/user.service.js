@@ -48,7 +48,18 @@ class UserService {
 
     async getSellers() {
         return await db.prisma.user.findMany({
-            where:{role: 'seller'}
+            where: { role: 'seller' },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                phone: true,
+                status: true,
+                isDeleted: true,
+                createdAt: true,
+                updatedAt: true,
+            },
         });
     }
 }
