@@ -11,10 +11,11 @@ class AuthController {
             });
 
         } catch (err) {
-            return res.status(err.statusCode || 500).json({
+            const statusCode = err.statusCode || 500;
+            return res.status(statusCode).json({
                 success: false,
-                message: "connexion échouée",
-                error: err.message,
+                message: err.message || 'connexion échouée',
+                ...(err.fieldErrors && { fieldErrors: err.fieldErrors }),
             });
         }
     }

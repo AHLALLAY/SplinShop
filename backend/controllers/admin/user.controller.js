@@ -10,10 +10,11 @@ class UserController {
                 data: seller,
             });
         } catch (err) {
-            return res.status(err.statusCode || 500).json({
+            const statusCode = err.statusCode || 500;
+            return res.status(statusCode).json({
                 success: false,
-                message: "l'ajoute de vendeur échouée",
-                error: err.message,
+                message: err.message || "l'ajout du vendeur a échoué",
+                ...(err.fieldErrors && { fieldErrors: err.fieldErrors }),
             });
         }
     }
@@ -27,10 +28,11 @@ class UserController {
                 data: sellers,
             });
         } catch (err) {
-            return res.status(err.statusCode || 500).json({
+            const statusCode = err.statusCode || 500;
+            return res.status(statusCode).json({
                 success: false,
-                message: "les venduers ne sont pas là",
-                error: err.message,
+                message: err.message || 'les vendeurs ne sont pas disponibles',
+                ...(err.fieldErrors && { fieldErrors: err.fieldErrors }),
             });
         }
     }
