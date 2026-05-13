@@ -20,9 +20,13 @@ class AuthService {
                 email: email,
             },
         });
-        if (!user) throw new Error("Identifiants invalides");
+        if (!user) {
+            throw Object.assign(new Error('Identifiants invalides'), { statusCode: 401 });
+        }
         const isPasswordMatch = await bcrypt.compare(password, user.password);
-        if (!isPasswordMatch) throw new Error("Identifiants invalides");
+        if (!isPasswordMatch) {
+            throw Object.assign(new Error('Identifiants invalides'), { statusCode: 401 });
+        }
 
         const token = jwt.sign(
             { id: user.id, role: user.role },
