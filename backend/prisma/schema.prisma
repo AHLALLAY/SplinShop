@@ -40,15 +40,15 @@ model User {
 }
 
 model Catalog {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  slug        String   @unique
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String?   @unique
   imgUrl      String?
   description String?
-  status      Status   @default(active)
-  isDeleted   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      Status    @default(active)
+  isDeleted   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   products    Product[]
 }
 
@@ -61,9 +61,16 @@ model Product {
   quantity    Int      @default(0)
   slug        String   @unique
   description String   @db.Text
-  imgUrl      String?
+  images      Image[]
   status      Status   @default(active)
   isDeleted   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Image {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  imgUrl    String
 }
