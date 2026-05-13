@@ -24,7 +24,7 @@ async function createDefaultAdmin() {
                 password: hashedPassword,
                 role: "admin",
                 phone: process.env.ADMIN_PHONE,
-            }
+            },
         });
         console.info('Admin created successfully');
         return true;
