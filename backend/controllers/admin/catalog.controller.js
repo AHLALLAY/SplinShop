@@ -1,0 +1,23 @@
+import catalogService from "../../services/admin/catalog.service.js";
+
+class CatalogController {
+    async addCatalog(req, res) {
+        try {
+            const catalog = await catalogService.addCatalog(req.body);
+            return res.status(201).json({
+                success: true,
+                message: "Ajouté",
+                data: catalog,
+            });
+        } catch (err) {
+            const statusCode = err.statusCode || 500;
+            return res.status(statusCode).json({
+                success: false,
+                message: err.message || "l'ajout du catalogue a échoué",
+                ...(err.fieldErrors && { fieldErrors: err.fieldErrors }),
+            });
+        }
+    }
+}
+
+export default new CatalogController();
