@@ -38,6 +38,20 @@ class CatalogService {
             throw e;
         }
     }
+
+    async getCatalogs() {
+        return await db.prisma.catalog.findMany({
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                imgUrl: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+            },
+        });
+    }
 }
 
 export default new CatalogService();

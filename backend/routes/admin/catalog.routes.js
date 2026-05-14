@@ -6,6 +6,7 @@ import requireAdmin from '../../middlewares/admin.middleware.js';
 const router = express.Router();
 
 router.post('/', isAuthenticated, requireAdmin, catalogController.addCatalog);
+router.get('/', catalogController.getCatalogs);
 
 
 export default router;

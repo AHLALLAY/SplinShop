@@ -18,6 +18,24 @@ class CatalogController {
             });
         }
     }
+
+    async getCatalogs(req, res) {
+        try {
+            const catalogs = await catalogService.getCatalogs();
+            return res.status(200).json({
+                success: true,
+                message: "les catègories qui existent",
+                data: catalogs,
+            });
+        } catch (err) {
+            const statusCode = err.statusCode || 500;
+            return res.status(statusCode).json({
+                success: false,
+                message: err.message || "les catégories ne sont pas disponibles",
+                ...(err.fieldErrors && { fieldErrors: err.fieldErrors }),
+            });
+        }
+    }
 }
 
 export default new CatalogController();
