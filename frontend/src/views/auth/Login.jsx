@@ -21,7 +21,7 @@ export default function Login() {
             const loginResponse = await Auth.login({ email, password });
             navigate(`/${loginResponse.role}/dashboard`);
         } catch (err) {
-            setError(err);
+            setError(err.message);
         }
     };
 
