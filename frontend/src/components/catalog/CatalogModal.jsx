@@ -1,16 +1,34 @@
 import { useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
+import catalog from "../../services/catalog";
 
 const fieldClass =
     "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/25 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-amber-800 hover:file:bg-amber-100";
 
 export default function CatalogModal({ visibility, onClose }) {
     const [name, setName] = useState("");
-    const [pic, setPic] = useState(null);
+    const [description, setDescription] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmition = (e) => {
+    const handleSubmition = async (e) => {
         e.preventDefault();
+        try {
+            setError("");
+            setLoading(true);
+            await catalog.addCatalog({
+                name,
+                slug: name.toLowerCase().replaceAll(' ', '-'),
+                description
+            });
+            setLoading(false);
+            onClose();
+        } catch (err) {
+            setLoading(false);
+            setError(err.message);
+        }
+
     };
 
     if (!visibility) return null;
@@ -46,6 +64,7 @@ export default function CatalogModal({ visibility, onClose }) {
                             <p className="mt-1 text-sm text-slate-500">
                                 Ajoutez un nom et une image pour organiser votre catalogue.
                             </p>
+                            {error && <span className="text-red-600 bg-red-300/30 rounded-lg px-4">{error}</span>}
                         </div>
                         <button
                             type="button"
@@ -77,6 +96,18 @@ export default function CatalogModal({ visibility, onClose }) {
                             accept="image/*"
                             onChange={(e) => setPic(e.target.files?.[0] ?? null)}
                             className={`${fieldClass} cursor-pointer text-sm text-slate-600 file:cursor-pointer`}
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-0.5">
+                        <label htmlFor="cat_description" className="text-sm font-medium text-slate-700">
+                            Description
+                        </label>
+                        <textarea
+                            id="cat_description"
+                            placeholder="Décrire la catégorie"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className={fieldClass}
                         />
                     </div>
                 </div>
