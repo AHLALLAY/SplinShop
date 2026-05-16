@@ -2,12 +2,19 @@ async function useEndPoint(endpoint, method = "GET", body = null, token = localS
     try {
         const headers = {};
         const methods = ['POST', 'PUT', 'PATCH'];
+        const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
 
         if (!endpoint) throw new Error('endpoint is required');
-        if (methods.includes(method.toUpperCase()) && body) headers['Content-Type'] = 'application/json';
+        if (methods.includes(method.toUpperCase()) && body && !isFormData) {
+            headers['Content-Type'] = 'application/json';
+        }
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const requestBody = body ? JSON.stringify(body) : null;
+        const requestBody = body
+            ? isFormData
+                ? body
+                : JSON.stringify(body)
+            : null;
         const url = endpoint.startsWith(import.meta.env.VITE_API_URL) ? endpoint : `${import.meta.env.VITE_API_URL}${endpoint}`;
         const response = await fetch(url, {
             method: method.toUpperCase(),
