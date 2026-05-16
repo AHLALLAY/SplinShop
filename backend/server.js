@@ -6,6 +6,7 @@ import createDefaultAdmin from './utils/addAdmin.js';
 import authRoute from './routes/auth/auth.routes.js';
 import userRoute from './routes/admin/user.routes.js';
 import catalogRoute from './routes/admin/catalog.routes.js';
+import productRoute from './routes/admin/product.routes.js';
 
 // constants
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,7 @@ app.use(cors({
 app.use(`${API_BASE_URL}/auth`, authRoute);
 app.use(`${API_BASE_URL}/seller`, userRoute);
 app.use(`${API_BASE_URL}/catalog`, catalogRoute);
+app.use(`${API_BASE_URL}/product`, productRoute);
 
 const run = async () => {
     try {
