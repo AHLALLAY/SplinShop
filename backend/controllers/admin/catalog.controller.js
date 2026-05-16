@@ -3,7 +3,7 @@ import catalogService from "../../services/admin/catalog.service.js";
 class CatalogController {
     async addCatalog(req, res) {
         try {
-            const catalog = await catalogService.addCatalog(req.body);
+            const catalog = await catalogService.addCatalog(req.body, req.file);
             return res.status(201).json({
                 success: true,
                 message: "Ajouté",
