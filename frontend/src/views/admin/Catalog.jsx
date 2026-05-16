@@ -35,7 +35,13 @@ export default function Catalog() {
             </div>
             <div className="flex-1">
                 <CatalogCard data={catalogs} />
-                <CatalogModal visibility={show} onClose={() => { setshow(false); loadCatalogs(); }} />
+                <CatalogModal
+                    key={show ? "open" : "closed"}
+                    visibility={show}
+                    onClose={() => {
+                        setshow(false);
+                        loadCatalogs();
+                    }} />
             </div>
         </div>
     );
