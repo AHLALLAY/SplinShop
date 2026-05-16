@@ -9,6 +9,7 @@ const fieldClass =
 export default function CatalogModal({ visibility, onClose }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [image, setImage] = useState(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -20,8 +21,12 @@ export default function CatalogModal({ visibility, onClose }) {
             await catalog.addCatalog({
                 name,
                 slug: name.toLowerCase().replaceAll(' ', '-'),
-                description
+                description,
+                image
             });
+            setName("");
+            setDescription("");
+            setImage(null);
             setLoading(false);
             onClose();
         } catch (err) {
@@ -93,8 +98,8 @@ export default function CatalogModal({ visibility, onClose }) {
                         <input
                             id="cat_pic"
                             type="file"
-                            accept="image/*"
-                            onChange={(e) => setPic(e.target.files?.[0] ?? null)}
+                            accept="image/jpeg,image/webp"
+                            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
                             className={`${fieldClass} cursor-pointer text-sm text-slate-600 file:cursor-pointer`}
                         />
                     </div>
@@ -116,12 +121,14 @@ export default function CatalogModal({ visibility, onClose }) {
                     <Button
                         type="button"
                         onClick={onClose}
+                        disabled={loading}
                         className="w-full rounded-xl border border-slate-200 bg-white! py-2.5 font-semibold text-slate-700! shadow-sm hover:bg-slate-50! focus-visible:ring-slate-400 sm:w-auto sm:min-w-28"
                     >
                         Annuler
                     </Button>
                     <Button
                         type="submit"
+                        disabled={loading}
                         className="w-full rounded-xl py-2.5 font-semibold sm:w-auto sm:min-w-36"
                     >
                         Ajouter
