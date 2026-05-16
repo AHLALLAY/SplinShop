@@ -59,8 +59,8 @@ model Product {
   name        String
   price       Decimal  @db.Decimal(10, 2)
   quantity    Int      @default(0)
-  slug        String   @unique
-  description String   @db.Text
+  slug        String?  @unique
+  description String?  @db.Text
   images      Image[]
   status      Status   @default(active)
   isDeleted   Boolean  @default(false)
@@ -73,4 +73,5 @@ model Image {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
   imgUrl    String
+  isPrimary Boolean @default(false)
 }
