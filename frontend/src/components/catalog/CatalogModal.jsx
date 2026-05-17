@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 import catalog from "../../services/catalog";
@@ -6,15 +6,33 @@ import catalog from "../../services/catalog";
 const fieldClass =
     "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/25 file:mr-3 file:rounded-lg file:border-0 file:bg-amber-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-amber-800 hover:file:bg-amber-100";
 
-export default function CatalogModal({ visibility, onClose }) {
+export default function CatalogModal({ visibility, onClose, item = null }) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [image, setImage] = useState(null);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const isEdit = Boolean(item?.id);
+
+    useEffect(() => {
+        if (!visibility) return;
+        setError("");
+        setImage(null);
+        if (item) {
+            setName(item.name ?? "");
+            setDescription(item.description ?? "");
+        } else {
+            setName("");
+            setDescription("");
+        }
+    }, [visibility, item]);
 
     const handleSubmition = async (e) => {
         e.preventDefault();
+        if (isEdit) {
+            setError("La modification sera disponible lorsque l’API sera en place.");
+            return;
+        }
         try {
             setError("");
             setLoading(true);
@@ -64,10 +82,12 @@ export default function CatalogModal({ visibility, onClose }) {
                                 id="catalog-modal-title"
                                 className="text-xl font-semibold tracking-tight text-slate-900"
                             >
-                                Nouvelle catégorie
+                                {isEdit ? "Modifier la catégorie" : "Nouvelle catégorie"}
                             </h2>
                             <p className="mt-1 text-sm text-slate-500">
-                                Ajoutez un nom et une image pour organiser votre catalogue.
+                                {isEdit
+                                    ? "Mettez à jour le nom, la description ou l’image."
+                                    : "Ajoutez un nom et une image pour organiser votre catalogue."}
                             </p>
                             {error && <span className="text-red-600 bg-red-300/30 rounded-lg px-4">{error}</span>}
                         </div>
@@ -131,7 +151,7 @@ export default function CatalogModal({ visibility, onClose }) {
                         disabled={loading}
                         className="w-full rounded-xl py-2.5 font-semibold sm:w-auto sm:min-w-36"
                     >
-                        Ajouter
+                        {isEdit ? "Enregistrer" : "Ajouter"}
                     </Button>
                 </div>
             </form>
