@@ -9,6 +9,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
+    "minio": "cd c:\\MinIO && minio.exe server C:\\minio-data --console-address \":9001\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
