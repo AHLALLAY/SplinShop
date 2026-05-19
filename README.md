@@ -45,7 +45,7 @@ npm run dev
 ```
 L'application sera disponible sur :
 - Frontend : `http://localhost:5173`
-- Backend API : `http://localhost:3001`
+- Backend API : `http://localhost:3000`
 
 ---
 
