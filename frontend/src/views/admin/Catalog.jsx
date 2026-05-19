@@ -3,11 +3,14 @@ import Button from "../../components/ui/Button";
 import CatalogModal from "../../components/catalog/CatalogModal.jsx";
 import CatalogCard from "../../components/catalog/CatalogCard.jsx";
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 export default function Catalog() {
     const [show, setshow] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [catalogs, setcatalogs] = useState([]);
+    const navigate = useNavigate();
+
     const loadCatalogs = async () => {
         let cancelled = false;
         try {
@@ -37,6 +40,14 @@ export default function Catalog() {
         window.alert("La suppression sera disponible lorsque l’API sera en place.");
     };
 
+    const loadProductOfCatalog = (item) => {
+        const slug =
+            item?.slug ||
+            item?.name?.toLowerCase().trim().replace(/\s+/g, "-");
+        if (!slug) return;
+        navigate(`/admin/catalog/${encodeURIComponent(slug)}/products`);
+    };
+
     const closeModal = () => {
         setshow(false);
         setEditingItem(null);
@@ -60,6 +71,7 @@ export default function Catalog() {
                 <CatalogCard
                     data={catalogs}
                     adminMode
+                    onClick={loadProductOfCatalog}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                 />
