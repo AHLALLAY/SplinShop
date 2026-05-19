@@ -1,7 +1,10 @@
-import { productSchema } from "../../utils/validation.js";
-import { z } from "zod";
-import db from "../../databases/connection.js";
-import uploadService from "../../upload/upload.service.js";
+import { productSchema } from '../../utils/validationRules.js';
+import { parseOrThrow } from '../../utils/parseOrThrow.js';
+import { AppError } from '../../utils/AppError.js';
+import { rethrowPrismaError } from '../../utils/prismaErrors.js';
+import db from '../../databases/connection.js';
+import uploadService from '../../upload/upload.service.js';
+import { z } from 'zod';
 
 const productWithImagesSelect = {
     id: true,
@@ -15,22 +18,17 @@ const productWithImagesSelect = {
     updatedAt: true,
     images: {
         select: { id: true, imgUrl: true, isPrimary: true },
-        orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+        orderBy: [{ isPrimary: 'desc' }, { id: 'asc' }],
     },
 };
 
 class ProductService {
     async addProduct(product, files = []) {
-        const result = productSchema.safeParse(product);
-        if (!result.success) {
-            const fieldErrors = z.flattenError(result.error).fieldErrors;
-            throw Object.assign(new Error("validation échouée"), {
-                statusCode: 400,
-                fieldErrors,
-            });
-        }
+        const { catalogId, name, price, quantity, slug, description } = parseOrThrow(
+            productSchema,
+            product,
+        );
 
-        const { catalogId, name, price, quantity, slug, description } = result.data;
         const fileList = Array.isArray(files) ? files : [];
         const uploadedObjects = [];
         let productId = null;
@@ -47,7 +45,7 @@ class ProductService {
                     buffer: file.buffer,
                     mimetype: file.mimetype,
                     originalName: file.originalname,
-                    prefix: "products",
+                    prefix: 'products',
                 });
                 uploadedObjects.push(uploaded.objectName);
 
@@ -60,7 +58,7 @@ class ProductService {
                 });
             }
 
-            return await db.prisma.product.findUnique({
+            return db.prisma.product.findUnique({
                 where: { id: createdProduct.id },
                 select: productWithImagesSelect,
             });
@@ -72,27 +70,25 @@ class ProductService {
                 await db.prisma.image.deleteMany({ where: { productId } }).catch(() => {});
                 await db.prisma.product.delete({ where: { id: productId } }).catch(() => {});
             }
-            if (e?.code === "P2002") {
-                throw Object.assign(new Error("Ce slug est déjà utilisé."), { statusCode: 409 });
-            }
-            throw e;
+            rethrowPrismaError(e, 'Ce slug est déjà utilisé.');
         }
     }
 
     async getProductsByCatalog(catalogId) {
-        const idResult = productSchema.shape.catalogId.safeParse(catalogId);
+        const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
         if (!idResult.success) {
-            throw Object.assign(new Error("Catalog invalide"), { statusCode: 400 });
+            throw new AppError('catalogue invalide', 400);
         }
-        try {
-            return await db.prisma.product.findMany({
-                where: { catalogId: idResult.data, isDeleted: false },
-                orderBy: { createdAt: "desc" },
-                select: productWithImagesSelect,
-            });
-        } catch (e) {
-            throw e;
-        }
+
+        return db.prisma.product.findMany({
+            where: {
+                catalogId: idResult.data,
+                isDeleted: false,
+                status: 'active',
+            },
+            orderBy: { createdAt: 'desc' },
+            select: productWithImagesSelect,
+        });
     }
 }
 
