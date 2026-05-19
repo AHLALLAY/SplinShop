@@ -7,7 +7,7 @@ const kebabBtnClass =
 const menuItemClass =
     "block w-full rounded-none border-0 bg-transparent px-4 py-2 text-left text-sm font-medium shadow-none transition hover:scale-100 active:scale-100";
 
-function CatalogItemCard({ item, adminMode, onEdit, onDelete }) {
+function CatalogItemCard({ item, adminMode, onClick, onEdit, onDelete }) {
     const [imgFailed, setImgFailed] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
@@ -24,8 +24,25 @@ function CatalogItemCard({ item, adminMode, onEdit, onDelete }) {
         return () => document.removeEventListener("mousedown", close);
     }, [menuOpen]);
 
+    const handleCardActivate = () => onClick?.(item);
+
     return (
-        <article className="group flex flex-col overflow-hidden rounded-2xl border border-amber-200/70 bg-white shadow-sm shadow-amber-950/5 transition hover:border-amber-300 hover:shadow-md hover:shadow-amber-950/10">
+        <article
+            className={`group flex flex-col overflow-hidden rounded-2xl border border-amber-200/70 bg-white shadow-sm shadow-amber-950/5 transition hover:border-amber-300 hover:shadow-md hover:shadow-amber-950/10${onClick ? " cursor-pointer" : ""}`}
+            onClick={onClick ? handleCardActivate : undefined}
+            onKeyDown={
+                onClick
+                    ? (e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleCardActivate();
+                          }
+                      }
+                    : undefined
+            }
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
+        >
             <div className="relative aspect-4/3 w-full overflow-hidden bg-linear-to-br from-amber-50 via-stone-50 to-amber-100/80">
                 {adminMode && (
                     <div ref={menuRef} className="absolute right-2 top-2 z-10">
@@ -45,13 +62,14 @@ function CatalogItemCard({ item, adminMode, onEdit, onDelete }) {
                         {menuOpen && (
                             <div
                                 role="menu"
-                                className="absolute right-0 top-full mt-1 min-w-[9.5rem] overflow-hidden rounded-xl border border-amber-200/80 bg-white py-1 shadow-lg shadow-amber-950/10"
+                                className="absolute right-0 top-full mt-1 min-w-38 overflow-hidden rounded-xl border border-amber-200/80 bg-white py-1 shadow-lg shadow-amber-950/10"
                             >
                                 <button
                                     type="button"
                                     role="menuitem"
                                     className={`${menuItemClass} text-stone-700 hover:bg-amber-50`}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         setMenuOpen(false);
                                         onEdit?.(item);
                                     }}
@@ -62,7 +80,18 @@ function CatalogItemCard({ item, adminMode, onEdit, onDelete }) {
                                     type="button"
                                     role="menuitem"
                                     className={`${menuItemClass} text-red-600 hover:bg-red-50`}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                    }}
+                                >
+                                    Masquer
+                                </button>
+                                <button
+                                    type="button"
+                                    role="menuitem"
+                                    className={`${menuItemClass} text-red-600 hover:bg-red-50`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
                                         setMenuOpen(false);
                                         onDelete?.(item);
                                     }}
@@ -109,7 +138,7 @@ function CatalogItemCard({ item, adminMode, onEdit, onDelete }) {
     );
 }
 
-export default function CatalogCard({ data = [], adminMode = false, onEdit, onDelete }) {
+export default function CatalogCard({ data = [], adminMode = false, onClick, onEdit, onDelete }) {
     const list = Array.isArray(data) ? data : [];
 
     if (list.length === 0) {
@@ -130,6 +159,7 @@ export default function CatalogCard({ data = [], adminMode = false, onEdit, onDe
                     key={item.id ?? index}
                     item={item}
                     adminMode={adminMode}
+                    onClick={onClick}
                     onEdit={onEdit}
                     onDelete={onDelete}
                 />
