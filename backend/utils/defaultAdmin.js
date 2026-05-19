@@ -1,35 +1,34 @@
 import db from '../databases/connection.js';
 import bcrypt from 'bcryptjs';
-import 'dotenv/config';
+import { getSaltRounds } from '../config/index.js';
 
 async function createDefaultAdmin() {
     if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
-        throw new Error('ADMIN_EMAIL et ADMIN_PASSWORD doivent être définis dans .env');
+        throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env');
     }
     const existingAdmin = await db.prisma.user.findFirst({
         where: {
             email: process.env.ADMIN_EMAIL,
             role: 'admin',
-        }
+        },
     });
 
     if (!existingAdmin) {
-        const saltRounds = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
-        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, saltRounds);
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, getSaltRounds());
 
         await db.prisma.user.create({
             data: {
-                name: "Miri Mohammed",
+                name: process.env.ADMIN_NAME || 'Administrateur',
                 email: process.env.ADMIN_EMAIL,
                 password: hashedPassword,
-                role: "admin",
+                role: 'admin',
                 phone: process.env.ADMIN_PHONE,
             },
         });
-        console.info('Admin created successfully');
+        console.info('Default admin created');
         return true;
     }
-    console.info('Admin already exists');
+    console.info('Default admin already exists');
     return false;
 }
 
