@@ -1,4 +1,5 @@
 import tokenHandler from '../utils/tokenHandler.js';
+import { sendApiResponse } from '../utils/apiResponse.js';
 
 export default async function isAuthenticated(req, res, next) {
     try {
@@ -7,6 +8,10 @@ export default async function isAuthenticated(req, res, next) {
         await tokenHandler.bindUserToRequest(req, jwtDecoded.id);
         return next();
     } catch {
-        return res.status(401).json({ error: 'Authentification requise' });
+        sendApiResponse(res, {
+            status: 401,
+            success: false,
+            message: 'Authentification requise',
+        });
     }
 }
