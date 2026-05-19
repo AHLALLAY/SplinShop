@@ -10,7 +10,7 @@ class Token {
     }
 
     verifyToken(token) {
-        if (!token) throw new Error("Non authentifié");
+        if (!token) throw new Error('Missing or invalid token');
         return jwt.verify(token, process.env.JWT_SECRET);
     }
 
@@ -18,7 +18,9 @@ class Token {
         const user = await db.prisma.user.findUnique({
             where: { id: userId },
         });
-        if (!user || user.isDeleted || user.status === 'suspend') throw new Error('Non authentifié');
+        if (!user || user.isDeleted || user.status === 'suspend') {
+            throw new Error('User not found or not allowed');
+        }
         req.user = user;
     }
 }
