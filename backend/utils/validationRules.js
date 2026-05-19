@@ -30,9 +30,6 @@ export const sellerSchema = z.object({
             message:
                 'mot de passe invalide (8-20 caractères, majuscule, minuscule, chiffre et symbole)',
         }),
-    role: z
-        .enum(['admin', 'seller', 'customer'], { message: 'role invalide' })
-        .optional(),
     phone: z
         .string()
         .trim()
@@ -61,15 +58,14 @@ export const catalogSchema = z.object({
 });
 
 export const productSchema = z.object({
-    catalogId: z.uuid({message: "Catalog invalide"}),
+    catalogId: z.uuid({ message: 'catalogue invalide' }),
     name: z
         .string({ message: 'nom requis' })
         .trim()
         .min(1, { message: 'nom requis' })
         .max(30, { message: 'maximum 30 caractères' }),
-
-    price: z.coerce.number().positive(),
-    quantity: z.coerce.number().int().min(1),
+    price: z.coerce.number().positive({ message: 'prix invalide' }),
+    quantity: z.coerce.number().int().min(1, { message: 'quantité invalide' }),
     slug: optionalTrimmed(z.string().max(30, { message: 'slug trop long' })),
     description: optionalTrimmed(z.string().max(5000, { message: 'description trop longue' })),
 });
