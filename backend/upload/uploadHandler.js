@@ -1,4 +1,4 @@
-import { MINIO_BUCKET } from '../upload/minio.client.js';
+import { MINIO_BUCKET } from '../upload/upload.client.js';
 import path from 'node:path';
 
 export function requireBucket() {
