@@ -6,6 +6,7 @@ import AdminDashboard from "./views/admin/Dashboard";
 import HomeLayout from "./layouts/HomeLayout";
 import Seller from "./views/admin/Seller";
 import Catalog from "./views/admin/Catalog";
+import Product from "./views/admin/Product";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="sellers" element={<Seller />} />
           <Route path="catalog" element={<Catalog />} />
+          <Route path="catalog/:catalogSlug/products" element={<Product />} />
         </Route>
       </Routes>
     </BrowserRouter>
