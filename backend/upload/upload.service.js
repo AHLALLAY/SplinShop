@@ -1,16 +1,20 @@
-import { publicUrlForObject, requireBucket, safeExtension } from "../utils/uploadHandler.js"
+import { publicUrlForObject, requireBucket, safeExtension } from '../utils/uploadHandler.js';
 import { randomUUID } from 'node:crypto';
-import { MINIO_BUCKET, minioClient } from "./minio.client.js";
+import { MINIO_BUCKET, getMinioClient } from './upload.client.js';
+import { AppError } from '../utils/AppError.js';
+
 class UploadService {
     async putBuffer({ buffer, mimetype, originalName, prefix = 'uploads' }) {
         requireBucket();
-        if (!Buffer.isBuffer(buffer) || buffer.length === 0) throw Object.assign(new Error('buffer vide ou invalide'), { statusCode: 400 });
+        if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
+            throw new AppError('buffer vide ou invalide', 400);
+        }
 
         const p = String(prefix).replace(/^\/+|\/+$/g, '');
         const ext = safeExtension(originalName);
         const objectName = `${p}/${randomUUID()}${ext}`;
 
-        await minioClient.putObject(MINIO_BUCKET, objectName, buffer, buffer.length, {
+        await getMinioClient().putObject(MINIO_BUCKET, objectName, buffer, buffer.length, {
             'Content-Type': mimetype || 'application/octet-stream',
         });
 
@@ -21,7 +25,7 @@ class UploadService {
         requireBucket();
         if (!objectName || typeof objectName !== 'string') return;
         const key = objectName.replace(/^\/+/, '');
-        await minioClient.removeObject(MINIO_BUCKET, key);
+        await getMinioClient().removeObject(MINIO_BUCKET, key);
     }
 }
 
