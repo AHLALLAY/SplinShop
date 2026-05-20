@@ -1,58 +1,41 @@
-import catalog from "../../services/catalog.js";
-import Button from "../../components/ui/Button";
-import CatalogModal from "../../components/catalog/CatalogModal.jsx";
-import CatalogCard from "../../components/catalog/CatalogCard.jsx";
-import { useEffect, useState } from "react";
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../../components/ui/Button';
+import CatalogModal from '../../components/catalog/CatalogModal';
+import CatalogCard from '../../components/catalog/CatalogCard';
+import { useCatalogs } from '../../hooks/useCatalogs';
+import { resolveCatalogSlug } from '../../utils/catalogResolve';
 
 export default function Catalog() {
-    const [show, setshow] = useState(false);
+    const [show, setShow] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-    const [catalogs, setcatalogs] = useState([]);
+    const { catalogs, reload, loading } = useCatalogs();
     const navigate = useNavigate();
-
-    const loadCatalogs = async () => {
-        let cancelled = false;
-        try {
-            const res = await catalog.loadCatalog();
-            if (cancelled) return;
-            const list = res?.data;
-            setcatalogs(Array.isArray(list) ? list : []);
-        } catch {
-            if (!cancelled) setcatalogs([]);
-        }
-        return () => {
-            cancelled = true;
-        };
-    };
-    useEffect(() => {
-        loadCatalogs();
-    }, []);
 
     const handleEdit = (item) => {
         setEditingItem(item);
-        setshow(true);
+        setShow(true);
     };
 
     const handleDelete = (item) => {
-        const label = item?.name ? `« ${item.name} »` : "cet élément";
+        const label = item?.name ? `« ${item.name} »` : 'cet élément';
         if (!window.confirm(`Supprimer ${label} du catalogue ?`)) return;
-        window.alert("La suppression sera disponible lorsque l’API sera en place.");
+        // TODO(api): brancher DELETE catalog quand l’endpoint sera disponible
+        window.alert("La suppression sera disponible lorsque l'API sera en place.");
     };
 
     const loadProductOfCatalog = (item) => {
-        const slug =
-            item?.slug ||
-            item?.name?.toLowerCase().trim().replace(/\s+/g, "-");
+        const slug = resolveCatalogSlug(item);
         if (!slug) return;
         navigate(`/admin/catalog/${encodeURIComponent(slug)}/products`);
     };
 
     const closeModal = () => {
-        setshow(false);
+        setShow(false);
         setEditingItem(null);
-        loadCatalogs();
+        reload();
     };
+
     return (
         <div className="flex flex-col">
             <div className="flex justify-between">
@@ -61,13 +44,14 @@ export default function Catalog() {
                     className="px-2"
                     onClick={() => {
                         setEditingItem(null);
-                        setshow(true);
+                        setShow(true);
                     }}
                 >
                     Ajouter
                 </Button>
             </div>
             <div className="flex-1">
+                {loading && <p className="mt-4 text-sm text-stone-500">Chargement des catalogues…</p>}
                 <CatalogCard
                     data={catalogs}
                     adminMode
@@ -76,7 +60,7 @@ export default function Catalog() {
                     onDelete={handleDelete}
                 />
                 <CatalogModal
-                    key={show ? (editingItem?.id ?? "create") : "closed"}
+                    key={show ? (editingItem?.id ?? 'create') : 'closed'}
                     visibility={show}
                     item={editingItem}
                     onClose={closeModal}

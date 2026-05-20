@@ -1,27 +1,13 @@
-import CatalogCard from "../components/catalog/CatalogCard";
-import catalog from "../services/catalog";
-import { useState, useEffect } from "react";
+import CatalogCard from '../components/catalog/CatalogCard';
+import { useCatalogs } from '../hooks/useCatalogs';
 
 export default function Vitrine() {
-    const [catalogs, setcatalogs] = useState([]);
-    useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const res = await catalog.loadCatalog();
-                if (cancelled) return;
-                const list = res?.data;
-                setcatalogs(Array.isArray(list) ? list : []);
-            } catch {
-                if (!cancelled) setcatalogs([]);
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+    const { catalogs, loading } = useCatalogs();
 
     return (
-        <CatalogCard data={catalogs} />
+        <>
+            {loading && <p className="mb-4 text-sm text-stone-500">Chargement du catalogue…</p>}
+            <CatalogCard data={catalogs} />
+        </>
     );
 }
