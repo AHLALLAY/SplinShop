@@ -1,25 +1,28 @@
-import { useState } from "react";
-import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input.jsx";
-import Auth from "../../services/auth.js";
-import { useNavigate } from "react-router-dom";
-
-const fieldClass =
-    "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/25";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
+import Auth from '../../services/auth';
+import { fieldClass } from '../../utils/formClasses';
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
-
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmition = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            setError("");
+            setError('');
             const loginResponse = await Auth.login({ email, password });
-            navigate(`/${loginResponse.role}/dashboard`);
+            const role = loginResponse.role;
+            // TODO(routes): ajouter /seller et /customer quand les espaces seront prêts
+            if (role === 'admin') {
+                navigate('/admin/dashboard');
+            } else {
+                navigate(`/${role}/dashboard`);
+            }
         } catch (err) {
             setError(err.message);
         }
@@ -28,21 +31,21 @@ export default function Login() {
     return (
         <div className="relative min-h-screen bg-linear-to-br from-slate-100 via-white to-amber-50/40 px-4 py-10">
             <form
-                onSubmit={handleSubmition}
+                onSubmit={handleSubmit}
                 className="mx-auto w-full max-w-md rounded-2xl border border-slate-200/80 bg-white/90 p-8 shadow-lg shadow-slate-200/60 backdrop-blur-sm"
             >
                 <div className="mb-8 flex items-start justify-between gap-4">
                     <div>
-                        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                            Connexion
-                        </h2>
+                        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Connexion</h2>
                         <p className="mt-1 text-sm text-slate-500">
-                            {error && <span className="text-red-600 bg-red-300 border-red-500 rounded-lg">{error}</span>}
+                            {error && (
+                                <span className="rounded-lg border-red-500 bg-red-300 text-red-600">{error}</span>
+                            )}
                         </p>
                     </div>
                     <button
                         type="button"
-                        onClick={() => navigate("/")}
+                        onClick={() => navigate('/')}
                         aria-label="Fermer"
                         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                     >
@@ -77,7 +80,7 @@ export default function Login() {
                         Se connecter
                     </Button>
                     <p className="text-center text-sm text-slate-600">
-                        Pas encore de compte ?{" "}
+                        Pas encore de compte ?{' '}
                         <button
                             type="button"
                             className="font-medium text-amber-700 underline-offset-4 transition hover:text-amber-800 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-sm"
