@@ -46,6 +46,7 @@ model Catalog {
   imgUrl      String?
   description String?
   status      Status    @default(active)
+  isHidden    Boolean   @default(false)
   isDeleted   Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -63,6 +64,7 @@ model Product {
   description String?  @db.Text
   images      Image[]
   status      Status   @default(active)
+  isHidden    Boolean  @default(false)
   isDeleted   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
