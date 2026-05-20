@@ -8,6 +8,7 @@ class ProductController {
         const product = await productService.addProduct(req.body, req.files);
         sendApiResponse(res, {
             status: 201,
+            success: true,
             message: 'Ajouté',
             data: product || null,
         });
@@ -21,6 +22,7 @@ class ProductController {
         const products = await productService.getProductsByCatalog(catalogId);
         sendApiResponse(res, {
             status: 200,
+            success: true,
             message: 'les produits qui existent',
             data: products || null,
         });

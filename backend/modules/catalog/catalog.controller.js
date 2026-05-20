@@ -7,6 +7,7 @@ class CatalogController {
         const catalog = await catalogService.addCatalog(req.body, req.file);
         sendApiResponse(res, {
             status: 201,
+            success: true,
             message: 'Ajouté',
             data: catalog || null,
         });
@@ -16,6 +17,7 @@ class CatalogController {
         const catalogs = await catalogService.getCatalogs();
         sendApiResponse(res, {
             status: 200,
+            success: true,
             message: 'les catégories qui existent',
             data: catalogs || null,
         });

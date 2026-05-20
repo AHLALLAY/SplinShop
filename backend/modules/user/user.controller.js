@@ -7,6 +7,7 @@ class UserController {
         const seller = await userService.addSeller(req.body);
         sendApiResponse(res, {
             status: 201,
+            success: true,
             message: 'Ajouté',
             data: seller || null,
         });
@@ -16,6 +17,7 @@ class UserController {
         const sellers = await userService.getSellers();
         sendApiResponse(res, {
             status: 200,
+            success: true,
             message: 'les vendeurs qui existent',
             data: sellers || null,
         });
