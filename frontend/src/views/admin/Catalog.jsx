@@ -27,17 +27,24 @@ export default function Catalog() {
 
     const handleHide = async (item) => {
         if (!item?.id) return;
-        if (item.isHidden) return;
 
         const label = item.name ? `« ${item.name} »` : 'cette catégorie';
-        if (!window.confirm(`Masquer ${label} ? Il ne sera plus visible sur la boutique.`)) return;
+        const confirmMessage = item.isHidden
+            ? `Afficher ${label} sur la boutique ?`
+            : `Masquer ${label} ? Il ne sera plus visible sur la boutique.`;
+        if (!window.confirm(confirmMessage)) return;
 
         try {
             await catalogService.hideCatalog(item.id);
             await reload();
         } catch (error) {
-            console.error('Erreur lors du masquage du catalogue:', error);
-            window.alert(error?.message || 'Impossible de masquer ce catalogue.');
+            console.error('Erreur visibilité catalogue:', error);
+            window.alert(
+                error?.message ||
+                    (item.isHidden
+                        ? 'Impossible d’afficher ce catalogue.'
+                        : 'Impossible de masquer ce catalogue.'),
+            );
         }
     };
 

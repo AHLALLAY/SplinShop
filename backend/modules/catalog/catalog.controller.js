@@ -33,12 +33,14 @@ class CatalogController {
         });
     });
 
-    hideCatalog = asyncHandler(async (req, res) => {
-        const catalog = await catalogService.hideCatalog(req.params.id);
+    hideOrShowCatalog = asyncHandler(async (req, res) => {
+        const catalog = await catalogService.hideOrShowCatalog(req.params.id);
         sendApiResponse(res, {
             status: 200,
             success: true,
-            message: 'le catégorie a été masquer',
+            message: catalog?.isHidden
+                ? 'La catégorie a été masquée'
+                : 'La catégorie est à nouveau visible',
             data: catalog || null,
         });
     });

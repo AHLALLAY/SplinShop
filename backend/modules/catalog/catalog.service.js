@@ -64,23 +64,22 @@ class CatalogService {
         });
     }
 
-    async hideCatalog(catalogId) {
+    async hideOrShowCatalog(catalogId) {
         const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
         if (!idResult.success) {
             throw new AppError('catalogue invalide', 400);
         }
-
         const catalog = await db.prisma.catalog.findUnique({
             where: { id: idResult.data },
         });
         if (!catalog || catalog.isDeleted) {
             throw new AppError('Catalogue introuvable', 404);
         }
-
         try {
+            const newValue = !catalog.isHidden;
             return await db.prisma.catalog.update({
                 where: { id: idResult.data },
-                data: { isHidden: true },
+                data: { isHidden: newValue },
                 select: catalogAdminSelect,
             });
         } catch (e) {

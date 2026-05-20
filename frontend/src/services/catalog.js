@@ -24,7 +24,7 @@ class Catalog {
     }
 
     async hideCatalog(catalogId) {
-        return callEndpoint(`/catalogs/${catalogId}/hide`, 'PATCH');
+        return callEndpoint(`/catalogs/${catalogId}/hide-or-show`, 'PATCH');
     }
 }
 

@@ -20,10 +20,9 @@ function CatalogItemCard({ item, adminMode, onClick, onEdit, onHide, onDelete })
             {
                 label: item.isHidden ? 'Afficher' : 'Masquer',
                 className: item.isHidden
-                    ? 'text-stone-400 cursor-not-allowed'
-                    : 'text-red-600 hover:bg-red-50',
-                disabled: Boolean(item.isHidden),
-                onClick: () => !item.isHidden && onHide?.(item),
+                    ? 'text-emerald-700 hover:bg-emerald-50'
+                    : 'text-amber-800 hover:bg-amber-50',
+                onClick: () => onHide?.(item),
             },
             {
                 label: 'Supprimer',
