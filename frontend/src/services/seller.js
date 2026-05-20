@@ -1,13 +1,9 @@
-import useEndPoint from "./apiHandler";
+import callEndpoint from './apiHandler';
 
 class Seller {
     async loadSeller() {
-        try {
-            const sellers = await useEndPoint("/seller");
-            return sellers.data;
-        } catch (err) {
-            throw err;
-        }
+        const sellers = await callEndpoint('/sellers');
+        return sellers.data;
     }
 }
 

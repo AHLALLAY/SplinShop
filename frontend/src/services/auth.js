@@ -1,24 +1,26 @@
-import useEndPoint from "./apiHandler.js";
+import callEndpoint from './apiHandler';
+
 class Authentification {
-    async login(credentials) {
-        const body = {
-            email: credentials.email,
-            password: credentials.password
-        }
-        const response = await useEndPoint("/auth/login", "POST", body);
-        localStorage.setItem("user", JSON.stringify(response.data));
-        localStorage.setItem("token", response.data.token);
-        
-        return response.data;
-    }
+  async login(credentials) {
+    const body = {
+      email: credentials.email,
+      password: credentials.password,
+    };
+    const response = await callEndpoint('/auth/login', 'POST', body);
+    localStorage.setItem('user', JSON.stringify(response.data));
+    localStorage.setItem('token', response.data.token);
 
-    async register() {
+    return response.data;
+  }
 
-    }
+  // TODO(auth): implémenter quand la route register sera disponible
+  async register() { }
 
-    logout() {
-
-    }
+  logout() { 
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    window.location.href = '/';
+  }
 }
 
 export default new Authentification();
