@@ -3,7 +3,7 @@ import request from 'supertest';
 
 const mockFindUnique = vi.fn();
 
-vi.mock('../databases/connection.js', () => ({
+vi.mock('../../../databases/connection.js', () => ({
     default: {
         prisma: {
             user: {

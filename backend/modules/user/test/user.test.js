@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 
-vi.mock('../databases/connection.js', () => ({
+vi.mock('../../../databases/connection.js', () => ({
     default: {
         prisma: {
             user: {

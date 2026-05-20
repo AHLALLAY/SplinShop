@@ -3,7 +3,7 @@ import request from 'supertest';
 
 const mockFindMany = vi.fn();
 
-vi.mock('../databases/connection.js', () => ({
+vi.mock('../../../databases/connection.js', () => ({
     default: {
         prisma: {
             catalog: {
