@@ -2,10 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { config } from './config/index.js';
-import authRoute from './routes/auth/auth.routes.js';
-import sellerRoute from './routes/sellers/seller.routes.js';
-import catalogRoute from './routes/catalogs/catalog.routes.js';
-import productRoute from './routes/products/product.routes.js';
+import authRoute from './modules/auth/auth.routes.js';
+import sellerRoute from './modules/user/user.routes.js';
+import catalogRoute from './modules/catalog/catalog.routes.js';
+import productRoute from './modules/product/product.routes.js';
 
 const app = express();
 
