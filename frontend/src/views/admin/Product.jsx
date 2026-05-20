@@ -1,15 +1,15 @@
-import { Link, useParams } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
-import catalog from "../../services/catalog.js";
-import productService from "../../services/product.js";
-import Button from "../../components/ui/Button";
-import ProductModal from "../../components/product/ProductModal.jsx";
-import ProductCard from "../../components/product/ProductCard.jsx";
+import { Link, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import catalog from '../../services/catalog';
+import productService from '../../services/product';
+import Button from '../../components/ui/Button';
+import ProductModal from '../../components/product/ProductModal';
+import ProductCard from '../../components/product/ProductCard';
 
 export default function Product() {
     const { catalogSlug } = useParams();
     const [show, setShow] = useState(false);
-    const [catalogName, setCatalogName] = useState("");
+    const [catalogName, setCatalogName] = useState('');
     const [catalogId, setCatalogId] = useState(null);
     const [products, setProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
@@ -40,13 +40,13 @@ export default function Product() {
                 const list = Array.isArray(res?.data) ? res.data : [];
                 const decodedSlug = decodeURIComponent(catalogSlug);
                 const found = list.find((c) => c.slug === decodedSlug);
-                setCatalogName(found?.name ?? "");
+                setCatalogName(found?.name ?? '');
                 const id = found?.id ?? null;
                 setCatalogId(id);
                 if (id) await loadProducts(id);
             } catch {
                 if (!cancelled) {
-                    setCatalogName("");
+                    setCatalogName('');
                     setCatalogId(null);
                     setProducts([]);
                 }
@@ -60,6 +60,18 @@ export default function Product() {
     const closeModal = () => {
         setShow(false);
         loadProducts(catalogId);
+    };
+
+    const handleEdit = (item) => {
+        // TODO(api): brancher modification produit
+        window.alert(`Modification de « ${item.name} » — à brancher prochainement.`);
+    };
+
+    const handleDelete = (item) => {
+        const label = item?.name ? `« ${item.name} »` : 'ce produit';
+        if (!window.confirm(`Supprimer ${label} ?`)) return;
+        // TODO(api): brancher DELETE product quand l’endpoint sera disponible
+        window.alert("La suppression sera disponible lorsque l'API sera en place.");
     };
 
     return (
@@ -80,7 +92,7 @@ export default function Product() {
                             <span>Produits</span>
                         </>
                     ) : (
-                        "Produits"
+                        'Produits'
                     )}
                 </h1>
                 <Button className="px-2" onClick={() => setShow(true)} disabled={!catalogId}>
@@ -97,24 +109,11 @@ export default function Product() {
             {loadingProducts ? (
                 <p className="text-sm text-stone-500">Chargement des produits…</p>
             ) : (
-                <ProductCard
-                    data={products}
-                    adminMode
-                    onEdit={(item) => {
-                        window.alert(
-                            `Modification de « ${item.name} » — à brancher prochainement.`
-                        );
-                    }}
-                    onDelete={(item) => {
-                        const label = item?.name ? `« ${item.name} »` : "ce produit";
-                        if (!window.confirm(`Supprimer ${label} ?`)) return;
-                        window.alert("La suppression sera disponible lorsque l'API sera en place.");
-                    }}
-                />
+                <ProductCard data={products} adminMode onEdit={handleEdit} onDelete={handleDelete} />
             )}
 
             <ProductModal
-                key={show ? "open" : "closed"}
+                key={show ? 'open' : 'closed'}
                 visibility={show}
                 catalogId={catalogId}
                 onClose={closeModal}
