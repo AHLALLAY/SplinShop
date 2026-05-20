@@ -34,7 +34,7 @@ describe('GET /api/v1/catalogs', () => {
         expect(res.body.data).toHaveLength(1);
         expect(mockFindMany).toHaveBeenCalledWith(
             expect.objectContaining({
-                where: { isDeleted: false, status: 'active' },
+                where: { isDeleted: false, isHidden: false },
             }),
         );
     });

@@ -14,12 +14,32 @@ class CatalogController {
     });
 
     getCatalogs = asyncHandler(async (req, res) => {
-        const catalogs = await catalogService.getCatalogs();
+        const catalogs = await catalogService.getCatalogs(false);
         sendApiResponse(res, {
             status: 200,
             success: true,
             message: 'les catégories qui existent',
             data: catalogs || null,
+        });
+    });
+
+    getCatalogsAdmin = asyncHandler(async (req, res) => {
+        const catalogs = await catalogService.getCatalogs(true);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'les catégories (vue admin)',
+            data: catalogs || null,
+        });
+    });
+
+    hideCatalog = asyncHandler(async (req, res) => {
+        const catalog = await catalogService.hideCatalog(req.params.id);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'le catégorie a été masquer',
+            data: catalog || null,
         });
     });
 }

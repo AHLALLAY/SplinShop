@@ -1,5 +1,7 @@
+import { z } from 'zod';
 import { catalogSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
+import { AppError } from '../../utils/AppError.js';
 import { rethrowPrismaError } from '../../utils/prismaErrors.js';
 import db from '../../databases/connection.js';
 import uploadService from '../../upload/upload.service.js';
@@ -12,6 +14,11 @@ const catalogPublicSelect = {
     description: true,
     createdAt: true,
     updatedAt: true,
+};
+
+const catalogAdminSelect = {
+    ...catalogPublicSelect,
+    isHidden: true,
 };
 
 class CatalogService {
@@ -42,15 +49,43 @@ class CatalogService {
         }
     }
 
-    async getCatalogs() {
+    async getCatalogs(forAdmin = false) {
+        const where = {
+            isDeleted: false,
+        };
+        if (!forAdmin) {
+            where.isHidden = false;
+        }
+
         return db.prisma.catalog.findMany({
-            where: {
-                isDeleted: false,
-                status: 'active',
-            },
-            select: catalogPublicSelect,
-            orderBy: { createdAt: 'desc' },
+            where,
+            select: forAdmin ? catalogAdminSelect : catalogPublicSelect,
+            orderBy: { createdAt: 'asc' },
         });
+    }
+
+    async hideCatalog(catalogId) {
+        const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
+        if (!idResult.success) {
+            throw new AppError('catalogue invalide', 400);
+        }
+
+        const catalog = await db.prisma.catalog.findUnique({
+            where: { id: idResult.data },
+        });
+        if (!catalog || catalog.isDeleted) {
+            throw new AppError('Catalogue introuvable', 404);
+        }
+
+        try {
+            return await db.prisma.catalog.update({
+                where: { id: idResult.data },
+                data: { isHidden: true },
+                select: catalogAdminSelect,
+            });
+        } catch (e) {
+            rethrowPrismaError(e, 'Erreur lors de la modification du catalogue.');
+        }
     }
 }
 

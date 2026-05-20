@@ -15,5 +15,11 @@ router.post(
     catalogController.addCatalog,
 );
 router.get('/', catalogController.getCatalogs);
+router.get('/all', isAuthenticated, requireAdmin, catalogController.getCatalogsAdmin);
+router.patch('/:id/hide',
+    isAuthenticated,
+    requireAdmin,
+    catalogController.hideCatalog
+);
 
 export default router;
