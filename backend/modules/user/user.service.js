@@ -1,4 +1,4 @@
-import { sellerSchema } from '../../utils/validation.js';
+import { sellerSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
 import { AppError } from '../../utils/AppError.js';
 import { getSaltRounds } from '../../config/index.js';

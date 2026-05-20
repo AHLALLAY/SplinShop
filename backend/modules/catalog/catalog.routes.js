@@ -1,5 +1,5 @@
 import express from 'express';
-import catalogController from '../../modules/catalog/catalog.controller.js';
+import catalogController from './catalog.controller.js';
 import isAuthenticated from '../../middlewares/auth.middleware.js';
 import requireAdmin from '../../middlewares/admin.middleware.js';
 import { uploadCatalogImage, handleMulterError } from '../../middlewares/upload.middleware.js';

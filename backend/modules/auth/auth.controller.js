@@ -1,4 +1,4 @@
-import authService from '../../services/auth/auth.service.js';
+import authService from './auth.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { sendApiResponse } from '../../utils/apiResponse.js';
 

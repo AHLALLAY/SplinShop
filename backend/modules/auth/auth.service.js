@@ -1,4 +1,4 @@
-import { loginCredentialsSchema } from '../../utils/validation.js';
+import { loginCredentialsSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
 import { AppError } from '../../utils/AppError.js';
 import db from '../../databases/connection.js';

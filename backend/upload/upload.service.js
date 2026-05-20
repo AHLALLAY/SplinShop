@@ -1,4 +1,4 @@
-import { publicUrlForObject, requireBucket, safeExtension } from '../utils/uploadHandler.js';
+import { publicUrlForObject, requireBucket, safeExtension } from './uploadHandler.js';
 import { randomUUID } from 'node:crypto';
 import { MINIO_BUCKET, getMinioClient } from './upload.client.js';
 import { AppError } from '../utils/AppError.js';
