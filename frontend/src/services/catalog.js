@@ -7,6 +7,11 @@ class Catalog {
         return callEndpoint('/catalogs');
     }
 
+    /** Liste complète pour l’admin (y compris catalogues masqués). */
+    async loadCatalogAdmin() {
+        return callEndpoint('/catalogs/all');
+    }
+
     async addCatalog(catalog) {
         const body = new FormData();
         body.append('name', catalog.name);
@@ -16,6 +21,10 @@ class Catalog {
 
         const response = await callEndpoint('/catalogs', 'POST', body);
         return response.data;
+    }
+
+    async hideCatalog(catalogId) {
+        return callEndpoint(`/catalogs/${catalogId}/hide`, 'PATCH');
     }
 }
 

@@ -5,11 +5,12 @@ import CatalogModal from '../../components/catalog/CatalogModal';
 import CatalogCard from '../../components/catalog/CatalogCard';
 import { useCatalogs } from '../../hooks/useCatalogs';
 import { resolveCatalogSlug } from '../../utils/catalogResolve';
+import catalogService from '../../services/catalog';
 
 export default function Catalog() {
     const [show, setShow] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
-    const { catalogs, reload, loading } = useCatalogs();
+    const { catalogs, reload, loading } = useCatalogs({ forAdmin: true });
     const navigate = useNavigate();
 
     const handleEdit = (item) => {
@@ -22,6 +23,22 @@ export default function Catalog() {
         if (!window.confirm(`Supprimer ${label} du catalogue ?`)) return;
         // TODO(api): brancher DELETE catalog quand l’endpoint sera disponible
         window.alert("La suppression sera disponible lorsque l'API sera en place.");
+    };
+
+    const handleHide = async (item) => {
+        if (!item?.id) return;
+        if (item.isHidden) return;
+
+        const label = item.name ? `« ${item.name} »` : 'cette catégorie';
+        if (!window.confirm(`Masquer ${label} ? Il ne sera plus visible sur la boutique.`)) return;
+
+        try {
+            await catalogService.hideCatalog(item.id);
+            await reload();
+        } catch (error) {
+            console.error('Erreur lors du masquage du catalogue:', error);
+            window.alert(error?.message || 'Impossible de masquer ce catalogue.');
+        }
     };
 
     const loadProductOfCatalog = (item) => {
@@ -57,6 +74,7 @@ export default function Catalog() {
                     adminMode
                     onClick={loadProductOfCatalog}
                     onEdit={handleEdit}
+                    onHide={handleHide}
                     onDelete={handleDelete}
                 />
                 <CatalogModal

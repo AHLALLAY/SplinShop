@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ImagePlaceholder from '../ui/ImagePlaceholder';
 import KebabMenu from '../ui/KebabMenu';
 
-function CatalogItemCard({ item, adminMode, onClick, onEdit, onDelete }) {
+function CatalogItemCard({ item, adminMode, onClick, onEdit, onHide, onDelete }) {
     const [imgFailed, setImgFailed] = useState(false);
 
     const rawSrc = item.imgUrl || item.image || '';
@@ -18,10 +18,12 @@ function CatalogItemCard({ item, adminMode, onClick, onEdit, onDelete }) {
                 onClick: () => onEdit?.(item),
             },
             {
-                label: 'Masquer',
-                className: 'text-red-600 hover:bg-red-50 opacity-60',
-                disabled: true,
-                title: 'TODO(catalog): masquer la catégorie',
+                label: item.isHidden ? 'Afficher' : 'Masquer',
+                className: item.isHidden
+                    ? 'text-stone-400 cursor-not-allowed'
+                    : 'text-red-600 hover:bg-red-50',
+                disabled: Boolean(item.isHidden),
+                onClick: () => !item.isHidden && onHide?.(item),
             },
             {
                 label: 'Supprimer',
@@ -91,7 +93,7 @@ function CatalogItemCard({ item, adminMode, onClick, onEdit, onDelete }) {
     );
 }
 
-export default function CatalogCard({ data = [], adminMode = false, onClick, onEdit, onDelete }) {
+export default function CatalogCard({ data = [], adminMode = false, onClick, onEdit, onHide, onDelete }) {
     const list = Array.isArray(data) ? data : [];
 
     if (list.length === 0) {
@@ -112,6 +114,7 @@ export default function CatalogCard({ data = [], adminMode = false, onClick, onE
                     adminMode={adminMode}
                     onClick={onClick}
                     onEdit={onEdit}
+                    onHide={onHide}
                     onDelete={onDelete}
                 />
             ))}

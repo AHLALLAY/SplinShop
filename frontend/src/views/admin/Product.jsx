@@ -35,7 +35,7 @@ export default function Product() {
         (async () => {
             if (!catalogSlug) return;
             try {
-                const res = await catalog.loadCatalog();
+                const res = await catalog.loadCatalogAdmin();
                 if (cancelled) return;
                 const list = Array.isArray(res?.data) ? res.data : [];
                 const decodedSlug = decodeURIComponent(catalogSlug);
