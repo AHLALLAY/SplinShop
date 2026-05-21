@@ -33,6 +33,16 @@ class CatalogController {
         });
     });
 
+    updateCatalog = asyncHandler(async (req, res) => {
+        const catalog = await catalogService.updateCatalog(req.params.id, req.body, req.file);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'Modifié',
+            data: catalog || null,
+        });
+    });
+
     hideOrShowCatalog = asyncHandler(async (req, res) => {
         const catalog = await catalogService.hideOrShowCatalog(req.params.id);
         sendApiResponse(res, {

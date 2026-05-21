@@ -17,3 +17,14 @@ export function publicUrlForObject(objectName) {
     const key = objectName.replace(/^\/+/, '');
     return `${base}/${MINIO_BUCKET}/${key}`;
 }
+
+/** Extrait la clé MinIO depuis une URL publique stockée en base. */
+export function objectNameFromPublicUrl(url) {
+    if (!url || typeof url !== 'string') return null;
+    const bucket = MINIO_BUCKET;
+    if (!bucket) return null;
+    const marker = `/${bucket}/`;
+    const idx = url.indexOf(marker);
+    if (idx === -1) return null;
+    return url.slice(idx + marker.length);
+}

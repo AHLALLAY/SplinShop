@@ -5,6 +5,8 @@ import { AppError } from '../../utils/AppError.js';
 import { rethrowPrismaError } from '../../utils/prismaErrors.js';
 import db from '../../databases/connection.js';
 import uploadService from '../../upload/upload.service.js';
+import { objectNameFromPublicUrl } from '../../upload/uploadHandler.js';
+import { slugify } from '../../utils/slug.js';
 
 const catalogPublicSelect = {
     id: true,
@@ -62,6 +64,62 @@ class CatalogService {
             select: forAdmin ? catalogAdminSelect : catalogPublicSelect,
             orderBy: { createdAt: 'asc' },
         });
+    }
+
+    async updateCatalog(catalogId, catalog, file) {
+        const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
+        if (!idResult.success) {
+            throw new AppError('catalogue invalide', 400);
+        }
+
+        const existing = await db.prisma.catalog.findUnique({
+            where: { id: idResult.data },
+        });
+        if (!existing || existing.isDeleted) {
+            throw new AppError('Catalogue introuvable', 404);
+        }
+
+        const { name, slug, description } = parseOrThrow(catalogSchema, catalog);
+        const resolvedSlug = slug ?? slugify(name);
+
+        let imgUrl = existing.imgUrl;
+        let uploadedFile = null;
+        let oldObjectName = null;
+
+        if (file) {
+            uploadedFile = await uploadService.putBuffer({
+                buffer: file.buffer,
+                mimetype: file.mimetype,
+                originalName: file.originalname,
+                prefix: 'catalogs',
+            });
+            imgUrl = uploadedFile.url;
+            oldObjectName = objectNameFromPublicUrl(existing.imgUrl);
+        }
+
+        try {
+            const updated = await db.prisma.catalog.update({
+                where: { id: idResult.data },
+                data: {
+                    name,
+                    slug: resolvedSlug,
+                    description,
+                    imgUrl,
+                },
+                select: catalogAdminSelect,
+            });
+
+            if (oldObjectName) {
+                await uploadService.removeObject(oldObjectName).catch(() => {});
+            }
+
+            return updated;
+        } catch (e) {
+            if (uploadedFile?.objectName) {
+                await uploadService.removeObject(uploadedFile.objectName).catch(() => {});
+            }
+            rethrowPrismaError(e, 'Ce nom ou ce slug est déjà utilisé.');
+        }
     }
 
     async hideOrShowCatalog(catalogId) {
