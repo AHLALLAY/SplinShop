@@ -1,30 +1,19 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import Button from '../components/ui/Button';
+import { isAdmin, readUserName } from '../utils/authSession';
 
-const navLinkClass =
-    'block w-full rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-amber-50/90 hover:text-amber-950';
+
+const navLinkClass = 'block w-full rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors duration-200 hover:bg-amber-50/90 hover:text-amber-950';
 
 function navLinkActive({ isActive }) {
     return [
         navLinkClass,
-        isActive &&
-        'bg-linear-to-r from-amber-50 to-amber-100/80 font-semibold text-amber-950 shadow-sm shadow-amber-900/10 ring-1 ring-amber-200/90',
-    ]
-        .filter(Boolean)
-        .join(' ');
+        isActive && 'bg-linear-to-r from-amber-50 to-amber-100/80 font-semibold text-amber-950 shadow-sm shadow-amber-900/10 ring-1 ring-amber-200/90',
+    ].filter(Boolean).join(' ');
 }
 
-function readUserName() {
-    const raw = localStorage.getItem('user');
-    if (!raw) return '';
-    try {
-        const user = JSON.parse(raw);
-        return user.name ?? '';
-    } catch {
-        return '';
-    }
-}
+
 
 export default function AdminLayout() {
     const admin = [
@@ -34,6 +23,11 @@ export default function AdminLayout() {
     ];
     const [name] = useState(readUserName);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    if (!isAdmin()) {
+        return <Navigate to="/login" replace state={{ from: location }} />;
+    }
 
     const handleLogout = () => {
         localStorage.removeItem('user');
