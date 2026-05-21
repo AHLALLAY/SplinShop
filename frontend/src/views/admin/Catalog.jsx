@@ -51,7 +51,7 @@ export default function Catalog() {
     const loadProductOfCatalog = (item) => {
         const slug = resolveCatalogSlug(item);
         if (!slug) return;
-        navigate(`/admin/catalog/${encodeURIComponent(slug)}/products`);
+        navigate(`/catalog/${encodeURIComponent(slug)}/products`);
     };
 
     const closeModal = () => {
