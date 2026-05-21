@@ -16,10 +16,17 @@ export function isAuthenticated() {
   return Boolean(localStorage.getItem('token'));
 }
 
-export function isAdmin() {
+export function hasRole(role) {
   if (!isAuthenticated()) return false;
-  const user = getStoredUser();
-  return user?.role === 'admin';
+  return getStoredUser()?.role === role;
+}
+
+export function isAdmin() {
+  return hasRole('admin');
+}
+
+export function isCustomer() {
+  return hasRole('customer');
 }
 
 export function readUserName() {

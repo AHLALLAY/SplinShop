@@ -13,8 +13,20 @@ class Authentification {
     return response.data;
   }
 
-  // TODO(auth): implémenter quand la route register sera disponible
-  async register() { }
+  async register(payload) {
+    const body = {
+      name: payload.name,
+      email: payload.email,
+      password: payload.password,
+    };
+    if (payload.phone) body.phone = payload.phone;
+
+    const response = await callEndpoint('/auth/register', 'POST', body);
+    localStorage.setItem('user', JSON.stringify(response.data));
+    localStorage.setItem('token', response.data.token);
+
+    return response.data;
+  }
 
   logout() { 
     localStorage.removeItem('user');
