@@ -12,6 +12,16 @@ class AuthController {
             data: user,
         });
     });
+
+    register = asyncHandler(async (req, res) => {
+        const user = await authService.registerCustomer(req.body);
+        sendApiResponse(res, {
+            status: 201,
+            success: true,
+            message: 'compte créé',
+            data: user,
+        });
+    });
 }
 
 export default new AuthController();

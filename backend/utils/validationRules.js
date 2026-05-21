@@ -12,6 +12,31 @@ export const loginCredentialsSchema = z.object({
         .min(8, { message: 'minimum 8 caractères' }),
 });
 
+export const customerRegisterSchema = z.object({
+    name: z
+        .string({ message: 'nom requis' })
+        .trim()
+        .min(1, { message: 'nom requis' })
+        .max(30, { message: 'maximum 30 caractères' }),
+    email: z
+        .string({ message: 'email requis' })
+        .trim()
+        .toLowerCase()
+        .email({ message: 'email invalide' }),
+    password: z
+        .string({ message: 'mot de passe requis' })
+        .trim()
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,20}$/, {
+            message:
+                'mot de passe invalide (8-20 caractères, majuscule, minuscule, chiffre et symbole)',
+        }),
+    phone: z
+        .string()
+        .trim()
+        .regex(/^0[67]\d{8}$/, { message: 'numéro invalide (ex: 06XXXXXXXX)' })
+        .optional(),
+});
+
 export const sellerSchema = z.object({
     name: z
         .string({ message: 'nom requis' })
