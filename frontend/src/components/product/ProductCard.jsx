@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
 import ImagePlaceholder from '../ui/ImagePlaceholder';
 import Button from '../ui/Button';
 import KebabMenu from '../ui/KebabMenu';
 import ImageGallery from './ImageGallery';
+import { isAuthenticated } from '../../utils/authSession';
 
 function normalizeImages(item) {
   const raw = item?.images;
@@ -25,8 +27,21 @@ function galleryKeyFromImages(images) {
 }
 
 function ProductItemCard({ item, adminMode, onEdit, onDelete }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const images = useMemo(() => normalizeImages(item), [item]);
   const galleryKey = galleryKeyFromImages(images);
+
+  const handleWhatsAppOrder = () => {
+    if (!isAuthenticated()) {
+      window.alert(
+        'Vous devez vous connecter pour passer une commande.\n\nVous serez redirigé vers la page de connexion.',
+      );
+      navigate('/login', { state: { from: location } });
+      return;
+    }
+    // TODO(whatsapp): brancher lien WhatsApp pour les clients connectés
+  };
 
   const kebabItems = [
     {
@@ -67,10 +82,8 @@ function ProductItemCard({ item, adminMode, onEdit, onDelete }) {
           <Button
             type="button"
             className="mt-2 flex w-full items-center justify-center gap-2 bg-[#25D366]! py-3 shadow-md shadow-[#25D366]/25 hover:bg-[#20bd5a]! sm:w-auto sm:min-w-[240px]"
-            onClick={() => {
-              // TODO(whatsapp): brancher lien WhatsApp
-            }}
-            title="TODO(whatsapp): commander via WhatsApp"
+            onClick={handleWhatsAppOrder}
+            title="Commander via WhatsApp"
           >
             <MessageCircle className="h-5 w-5 shrink-0" aria-hidden />
             Commander sur WhatsApp
