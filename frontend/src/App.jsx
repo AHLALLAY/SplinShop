@@ -16,6 +16,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<HomeLayout />}>
                     <Route index element={<Home />} />
+                    <Route path="catalog/:catalogSlug/products" element={<Product />} />
                 </Route>
 
                 <Route path="/login" element={<Login />} />
@@ -24,7 +25,6 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="sellers" element={<Seller />} />
                     <Route path="catalog" element={<Catalog />} />
-                    <Route path="catalog/:catalogSlug/products" element={<Product />} />
                 </Route>
             </Routes>
         </BrowserRouter>
