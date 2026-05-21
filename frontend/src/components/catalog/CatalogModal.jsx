@@ -5,6 +5,7 @@ import Modal from '../ui/Modal';
 import catalog from '../../services/catalog';
 import { fieldClass, fieldClassFile } from '../../utils/formClasses';
 import { slugify } from '../../utils/slug';
+import { formatApiError } from '../../utils/formatApiError';
 
 export default function CatalogModal({ visibility, onClose, item = null }) {
     const isEdit = Boolean(item?.id);
@@ -16,20 +17,22 @@ export default function CatalogModal({ visibility, onClose, item = null }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isEdit) {
-            // TODO(api): brancher PUT catalog quand l’endpoint sera disponible
-            setError("La modification sera disponible lorsque l'API sera en place.");
-            return;
-        }
         try {
             setError('');
             setLoading(true);
-            await catalog.addCatalog({
+            const payload = {
                 name,
                 slug: slugify(name),
                 description,
                 image,
-            });
+            };
+
+            if (isEdit) {
+                await catalog.updateCatalog(item.id, payload);
+            } else {
+                await catalog.addCatalog(payload);
+            }
+
             setName('');
             setDescription('');
             setImage(null);
@@ -37,7 +40,7 @@ export default function CatalogModal({ visibility, onClose, item = null }) {
             onClose();
         } catch (err) {
             setLoading(false);
-            setError(err.message);
+            setError(formatApiError(err));
         }
     };
 
@@ -88,14 +91,20 @@ export default function CatalogModal({ visibility, onClose, item = null }) {
                 />
                 <div className="flex flex-col space-y-0.5">
                     <label htmlFor="cat_pic" className="text-sm font-medium text-slate-700">
-                        Choisir une photo
+                        {isEdit ? 'Remplacer la photo (optionnel)' : 'Choisir une photo'}
                     </label>
+                    {isEdit && item?.imgUrl && !image && (
+                        <p className="text-xs text-slate-500">
+                            Image actuelle conservée si vous ne choisissez pas de fichier.
+                        </p>
+                    )}
                     <input
                         id="cat_pic"
                         type="file"
                         accept="image/jpeg,image/webp"
                         onChange={(e) => setImage(e.target.files?.[0] ?? null)}
                         className={fieldClassFile}
+                        required={false}
                     />
                 </div>
                 <div className="flex flex-col space-y-0.5">

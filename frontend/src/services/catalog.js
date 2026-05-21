@@ -23,6 +23,17 @@ class Catalog {
         return response.data;
     }
 
+    async updateCatalog(catalogId, catalog) {
+        const body = new FormData();
+        body.append('name', catalog.name);
+        body.append('slug', catalog.slug ?? slugify(catalog.name));
+        body.append('description', catalog.description ?? '');
+        if (catalog.image) body.append('image', catalog.image);
+
+        const response = await callEndpoint(`/catalogs/${catalogId}`, 'PATCH', body);
+        return response.data;
+    }
+
     async hideCatalog(catalogId) {
         return callEndpoint(`/catalogs/${catalogId}/hide-or-show`, 'PATCH');
     }
