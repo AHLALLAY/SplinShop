@@ -1,6 +1,7 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 
+/** Vitrine pour les visiteurs non connectés (client). */
 export default function HomeLayout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,7 +30,6 @@ export default function HomeLayout() {
         <Outlet />
       </main>
 
-      {/* TODO(layout): retirer mention « administrateur » si footer vitrine définitif */}
       <footer className="border-t border-slate-200/70 bg-white/70 px-5 py-3.5 text-center text-[11px] text-slate-500 backdrop-blur-md md:px-10">
         SplinEdge Shop © {new Date().getFullYear()}
       </footer>
