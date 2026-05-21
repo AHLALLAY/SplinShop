@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { isAdmin } from '../../utils/authSession';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Auth from '../../services/auth';
@@ -10,6 +11,30 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const returnPath = () => {
+        const from = location.state?.from;
+        if (from?.pathname) {
+            return `${from.pathname}${from.search ?? ''}${from.hash ?? ''}`;
+        }
+        return '/';
+    };
+
+    const adminRedirectTarget = () => {
+        const from = location.state?.from?.pathname;
+        return from && from.startsWith('/admin') ? from : '/admin/dashboard';
+    };
+
+    const handleClose = () => {
+        navigate(returnPath(), { replace: true });
+    };
+
+    useEffect(() => {
+        if (isAdmin()) {
+            navigate(adminRedirectTarget(), { replace: true });
+        }
+    }, [location, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,9 +44,12 @@ export default function Login() {
             const role = loginResponse.role;
             // TODO(routes): ajouter /seller et /customer quand les espaces seront prêts
             if (role === 'admin') {
-                navigate('/admin/dashboard');
+                navigate(adminRedirectTarget(), { replace: true });
             } else {
-                navigate(`/${role}/dashboard`);
+                const from = location.state?.from?.pathname;
+                const target =
+                    from && !from.startsWith('/admin') ? returnPath() : `/${role}/dashboard`;
+                navigate(target, { replace: true });
             }
         } catch (err) {
             setError(err.message);
@@ -45,7 +73,7 @@ export default function Login() {
                     </div>
                     <button
                         type="button"
-                        onClick={() => navigate('/')}
+                        onClick={handleClose}
                         aria-label="Fermer"
                         className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                     >
