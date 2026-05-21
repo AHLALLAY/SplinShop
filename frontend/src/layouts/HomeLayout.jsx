@@ -1,8 +1,9 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 
 export default function HomeLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className="flex flex-col min-h-screen bg-linear-to-br from-slate-100 via-white to-amber-50/40">
@@ -14,7 +15,11 @@ export default function HomeLayout() {
             className="h-11 w-11 rounded-full border border-amber-600 object-cover"
           />
 
-          <Button type="button" onClick={() => navigate('/login')} className="px-2">
+          <Button
+            type="button"
+            onClick={() => navigate('/login', { state: { from: location } })}
+            className="px-2"
+          >
             Connexion
           </Button>
         </div>
