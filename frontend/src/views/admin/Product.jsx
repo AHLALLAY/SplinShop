@@ -1,12 +1,14 @@
 import { Link, useParams } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import catalog from '../../services/catalog';
 import productService from '../../services/product';
 import Button from '../../components/ui/Button';
 import ProductModal from '../../components/product/ProductModal';
 import ProductCard from '../../components/product/ProductCard';
+import ProductSearchBar from '../../components/product/ProductSearchBar';
 import { resolveCatalogSlug } from '../../utils/catalogResolve';
 import { isAdmin } from '../../utils/authSession';
+import { filterProductsByQuery } from '../../utils/filterProducts';
 
 export default function Product() {
     const { catalogSlug } = useParams();
@@ -17,6 +19,12 @@ export default function Product() {
     const [products, setProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
     const [loadingCatalog, setLoadingCatalog] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredProducts = useMemo(
+        () => filterProductsByQuery(products, searchQuery),
+        [products, searchQuery],
+    );
 
     const loadProducts = useCallback(async (id) => {
         if (!id) {
@@ -53,7 +61,10 @@ export default function Product() {
                 setCatalogName(found?.name ?? '');
                 const id = found?.id ?? null;
                 setCatalogId(id);
-                if (id) await loadProducts(id);
+                if (id) {
+                    setSearchQuery('');
+                    await loadProducts(id);
+                }
             } catch {
                 if (!cancelled) {
                     setCatalogName('');
@@ -124,15 +135,34 @@ export default function Product() {
                 </p>
             )}
 
+            {catalogId && !loadingCatalog && (
+                <ProductSearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    className="max-w-xl"
+                />
+            )}
+
             {loadingProducts ? (
                 <p className="text-sm text-stone-500">Chargement des produits…</p>
             ) : (
-                <ProductCard
-                    data={products}
-                    adminMode={adminView}
-                    onEdit={adminView ? handleEdit : undefined}
-                    onDelete={adminView ? handleDelete : undefined}
-                />
+                <>
+                    {products.length > 0 && searchQuery.trim() && (
+                        <p className="text-sm text-stone-500">
+                            {filteredProducts.length === 0
+                                ? `Aucun produit ne correspond à « ${searchQuery.trim()} ».`
+                                : `${filteredProducts.length} produit${filteredProducts.length > 1 ? 's' : ''} trouvé${filteredProducts.length > 1 ? 's' : ''}`}
+                        </p>
+                    )}
+                    {(filteredProducts.length > 0 || !searchQuery.trim()) && (
+                        <ProductCard
+                            data={filteredProducts}
+                            adminMode={adminView}
+                            onEdit={adminView ? handleEdit : undefined}
+                            onDelete={adminView ? handleDelete : undefined}
+                        />
+                    )}
+                </>
             )}
 
             {adminView && (
