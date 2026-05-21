@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { isAdmin } from '../../utils/authSession';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { isAdmin, isCustomer } from '../../utils/authSession';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Auth from '../../services/auth';
@@ -26,6 +26,11 @@ export default function Login() {
         return from && from.startsWith('/admin') ? from : '/admin/dashboard';
     };
 
+    const customerRedirectTarget = () => {
+        const from = location.state?.from?.pathname;
+        return from && from.startsWith('/customer') ? from : '/customer/dashboard';
+    };
+
     const handleClose = () => {
         navigate(returnPath(), { replace: true });
     };
@@ -33,6 +38,8 @@ export default function Login() {
     useEffect(() => {
         if (isAdmin()) {
             navigate(adminRedirectTarget(), { replace: true });
+        } else if (isCustomer()) {
+            navigate(customerRedirectTarget(), { replace: true });
         }
     }, [location, navigate]);
 
@@ -42,14 +49,15 @@ export default function Login() {
             setError('');
             const loginResponse = await Auth.login({ email, password });
             const role = loginResponse.role;
-            // TODO(routes): ajouter /seller et /customer quand les espaces seront prêts
             if (role === 'admin') {
                 navigate(adminRedirectTarget(), { replace: true });
-            } else {
+            } else if (role === 'customer') {
                 const from = location.state?.from?.pathname;
                 const target =
-                    from && !from.startsWith('/admin') ? returnPath() : `/${role}/dashboard`;
+                    from && !from.startsWith('/customer') ? returnPath() : customerRedirectTarget();
                 navigate(target, { replace: true });
+            } else {
+                navigate(`/${role}/dashboard`, { replace: true });
             }
         } catch (err) {
             setError(err.message);
@@ -65,11 +73,12 @@ export default function Login() {
                 <div className="mb-8 flex items-start justify-between gap-4">
                     <div>
                         <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Connexion</h2>
-                        <p className="mt-1 text-sm text-slate-500">
-                            {error && (
-                                <span className="rounded-lg border-red-500 bg-red-300 text-red-600">{error}</span>
-                            )}
-                        </p>
+                        <p className="mt-1 text-sm text-slate-500">Connexion à votre compte</p>
+                        {error && (
+                            <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                                {error}
+                            </p>
+                        )}
                     </div>
                     <button
                         type="button"
@@ -109,12 +118,13 @@ export default function Login() {
                     </Button>
                     <p className="text-center text-sm text-slate-600">
                         Pas encore de compte ?{' '}
-                        <button
-                            type="button"
+                        <Link
+                            to="/register"
+                            state={location.state}
                             className="font-medium text-amber-700 underline-offset-4 transition hover:text-amber-800 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 rounded-sm"
                         >
                             Créez-en un ici
-                        </button>
+                        </Link>
                     </p>
                 </div>
             </form>
