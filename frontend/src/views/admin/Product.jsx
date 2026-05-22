@@ -1,18 +1,17 @@
 import { Link, useParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import catalog from '../../services/catalog';
+import catalogService from '../../services/catalog';
 import productService from '../../services/product';
 import Button from '../../components/ui/Button';
 import ProductModal from '../../components/product/ProductModal';
 import ProductCard from '../../components/product/ProductCard';
 import ProductSearchBar from '../../components/product/ProductSearchBar';
-import { resolveCatalogSlug } from '../../utils/catalogResolve';
 import { isAdmin } from '../../utils/authSession';
 import { filterProductsByQuery } from '../../utils/filterProducts';
 
-export default function Product() {
+export default function Product({ adminContext = false }) {
     const { catalogSlug } = useParams();
-    const adminView = isAdmin();
+    const adminView = adminContext || isAdmin();
     const [show, setShow] = useState(false);
     const [catalogName, setCatalogName] = useState('');
     const [catalogId, setCatalogId] = useState(null);
@@ -20,6 +19,7 @@ export default function Product() {
     const [loadingProducts, setLoadingProducts] = useState(false);
     const [loadingCatalog, setLoadingCatalog] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
+    const [actionMessage, setActionMessage] = useState('');
 
     const filteredProducts = useMemo(
         () => filterProductsByQuery(products, searchQuery),
@@ -51,13 +51,9 @@ export default function Product() {
             }
             setLoadingCatalog(true);
             try {
-                const res = adminView
-                    ? await catalog.loadCatalogAdmin()
-                    : await catalog.loadCatalog();
-                if (cancelled) return;
-                const list = Array.isArray(res?.data) ? res.data : [];
                 const decodedSlug = decodeURIComponent(catalogSlug);
-                const found = list.find((c) => resolveCatalogSlug(c) === decodedSlug);
+                const found = await catalogService.loadBySlug(decodedSlug);
+                if (cancelled) return;
                 setCatalogName(found?.name ?? '');
                 const id = found?.id ?? null;
                 setCatalogId(id);
@@ -78,7 +74,7 @@ export default function Product() {
         return () => {
             cancelled = true;
         };
-    }, [catalogSlug, loadProducts, adminView]);
+    }, [catalogSlug, loadProducts]);
 
     const closeModal = () => {
         setShow(false);
