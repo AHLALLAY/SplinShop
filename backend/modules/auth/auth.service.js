@@ -1,11 +1,11 @@
 import { customerRegisterSchema, loginCredentialsSchema } from '../../utils/validationRules.js';
-import { getSaltRounds } from '../../config/index.js';
 import bcrypt from 'bcryptjs';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
 import { AppError } from '../../utils/AppError.js';
 import db from '../../databases/connection.js';
-import jwt from 'jsonwebtoken';
-import { config } from '../../config/index.js';
+import { signUserToken, toAuthResponse } from '../../utils/authTokens.js';
+import { hashPassword } from '../../utils/password.js';
+import { assertEmailAvailable, assertPhoneAvailable } from '../../utils/userHelpers.js';
 
 class AuthService {
     async login(credentials) {
@@ -24,41 +24,17 @@ class AuthService {
             throw new AppError('Identifiants invalides', 401);
         }
 
-        if (!config.JWT_SECRET) {
-            throw new Error('JWT_SECRET is not configured');
-        }
-
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            config.JWT_SECRET,
-            { expiresIn: config.JWT_EXPIRES_IN },
-        );
-
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token,
-        };
+        const token = signUserToken(user);
+        return toAuthResponse(user, token);
     }
 
     async registerCustomer(payload) {
         const { name, email, password, phone } = parseOrThrow(customerRegisterSchema, payload);
 
-        const existingEmail = await db.prisma.user.findUnique({ where: { email } });
-        if (existingEmail) {
-            throw new AppError('Email déjà utilisé', 409);
-        }
+        await assertEmailAvailable(email);
+        await assertPhoneAvailable(phone);
 
-        if (phone) {
-            const existingPhone = await db.prisma.user.findUnique({ where: { phone } });
-            if (existingPhone) {
-                throw new AppError('Numéro de téléphone déjà utilisé', 409);
-            }
-        }
-
-        const passwordHashed = await bcrypt.hash(password, getSaltRounds());
+        const passwordHashed = await hashPassword(password);
 
         const user = await db.prisma.user.create({
             data: {
@@ -70,23 +46,8 @@ class AuthService {
             },
         });
 
-        if (!config.JWT_SECRET) {
-            throw new Error('JWT_SECRET is not configured');
-        }
-
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            config.JWT_SECRET,
-            { expiresIn: config.JWT_EXPIRES_IN },
-        );
-
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token,
-        };
+        const token = signUserToken(user);
+        return toAuthResponse(user, token);
     }
 }
 
