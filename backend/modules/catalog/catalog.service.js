@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { catalogSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
 import { AppError } from '../../utils/AppError.js';
@@ -7,6 +6,7 @@ import db from '../../databases/connection.js';
 import uploadService from '../../upload/upload.service.js';
 import { objectNameFromPublicUrl } from '../../upload/uploadHandler.js';
 import { slugify } from '../../utils/slug.js';
+import { parseCatalogId, findCatalogBySlug } from '../../utils/catalogHelpers.js';
 
 const catalogPublicSelect = {
     id: true,
@@ -26,6 +26,7 @@ const catalogAdminSelect = {
 class CatalogService {
     async addCatalog(catalog, file) {
         let { name, slug, imgUrl, description } = parseOrThrow(catalogSchema, catalog);
+        const resolvedSlug = slug ?? slugify(name);
         let uploadedFile = null;
 
         if (file) {
@@ -40,7 +41,7 @@ class CatalogService {
 
         try {
             return await db.prisma.catalog.create({
-                data: { name, slug, imgUrl, description },
+                data: { name, slug: resolvedSlug, imgUrl, description },
                 select: catalogPublicSelect,
             });
         } catch (e) {
@@ -66,14 +67,24 @@ class CatalogService {
         });
     }
 
-    async updateCatalog(catalogId, catalog, file) {
-        const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
-        if (!idResult.success) {
-            throw new AppError('catalogue invalide', 400);
+    async getCatalogBySlug(slug, forAdmin = false) {
+        const catalog = await findCatalogBySlug(slug);
+        if (!catalog) {
+            throw new AppError('Catalogue introuvable', 404);
         }
+        if (!forAdmin && catalog.isHidden) {
+            throw new AppError('Catalogue introuvable', 404);
+        }
+        return db.prisma.catalog.findUnique({
+            where: { id: catalog.id },
+            select: forAdmin ? catalogAdminSelect : catalogPublicSelect,
+        });
+    }
 
+    async updateCatalog(catalogId, catalog, file) {
+        const id = parseCatalogId(catalogId);
         const existing = await db.prisma.catalog.findUnique({
-            where: { id: idResult.data },
+            where: { id },
         });
         if (!existing || existing.isDeleted) {
             throw new AppError('Catalogue introuvable', 404);
@@ -99,7 +110,7 @@ class CatalogService {
 
         try {
             const updated = await db.prisma.catalog.update({
-                where: { id: idResult.data },
+                where: { id },
                 data: {
                     name,
                     slug: resolvedSlug,
@@ -123,12 +134,9 @@ class CatalogService {
     }
 
     async hideOrShowCatalog(catalogId) {
-        const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
-        if (!idResult.success) {
-            throw new AppError('catalogue invalide', 400);
-        }
+        const id = parseCatalogId(catalogId);
         const catalog = await db.prisma.catalog.findUnique({
-            where: { id: idResult.data },
+            where: { id },
         });
         if (!catalog || catalog.isDeleted) {
             throw new AppError('Catalogue introuvable', 404);
@@ -136,7 +144,7 @@ class CatalogService {
         try {
             const newValue = !catalog.isHidden;
             return await db.prisma.catalog.update({
-                where: { id: idResult.data },
+                where: { id },
                 data: { isHidden: newValue },
                 select: catalogAdminSelect,
             });
