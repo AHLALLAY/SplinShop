@@ -15,6 +15,7 @@ router.post(
     catalogController.addCatalog,
 );
 router.get('/', catalogController.getCatalogs);
+router.get('/slug/:slug', catalogController.getCatalogBySlug);
 router.get('/all', isAuthenticated, requireAdmin, catalogController.getCatalogsAdmin);
 router.patch(
     '/:id/hide-or-show',
