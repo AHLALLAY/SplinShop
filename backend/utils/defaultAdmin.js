@@ -1,6 +1,5 @@
 import db from '../databases/connection.js';
-import bcrypt from 'bcryptjs';
-import { getSaltRounds } from '../config/index.js';
+import { hashPassword } from './password.js';
 
 async function createDefaultAdmin() {
     if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
@@ -14,7 +13,7 @@ async function createDefaultAdmin() {
     });
 
     if (!existingAdmin) {
-        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, getSaltRounds());
+        const hashedPassword = await hashPassword(process.env.ADMIN_PASSWORD);
 
         await db.prisma.user.create({
             data: {
