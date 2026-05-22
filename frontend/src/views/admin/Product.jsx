@@ -82,13 +82,13 @@ export default function Product({ adminContext = false }) {
     };
 
     const handleEdit = (item) => {
-        window.alert(`Modification de « ${item.name} » — à brancher prochainement.`);
+        setActionMessage(`Modification de « ${item.name} » — à brancher prochainement.`);
     };
 
     const handleDelete = (item) => {
         const label = item?.name ? `« ${item.name} »` : 'ce produit';
         if (!window.confirm(`Supprimer ${label} ?`)) return;
-        window.alert("La suppression sera disponible lorsque l'API sera en place.");
+        setActionMessage("La suppression sera disponible lorsque l'API sera en place.");
     };
 
     const backTo = adminView ? '/admin/catalog' : '/';
@@ -101,6 +101,12 @@ export default function Product({ adminContext = false }) {
             >
                 ← Retour au catalogue
             </Link>
+
+            {actionMessage && (
+                <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-amber-200">
+                    {actionMessage}
+                </p>
+            )}
 
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <h1 className="text-amber-600 font-bold text-2xl">
