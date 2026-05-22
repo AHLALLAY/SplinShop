@@ -1,16 +1,14 @@
 import CatalogCard from '../components/catalog/CatalogCard';
 import { useCatalogs } from '../hooks/useCatalogs';
 import { useNavigate } from 'react-router-dom';
-import { resolveCatalogSlug } from '../utils/catalogResolve';
+import { navigateToCatalogProducts } from '../utils/navigation';
 
 export default function Vitrine() {
     const { catalogs, loading } = useCatalogs();
     const navigate = useNavigate();
 
     const openCatalogProducts = (item) => {
-        const slug = resolveCatalogSlug(item);
-        if (!slug) return;
-        navigate(`/catalog/${encodeURIComponent(slug)}/products`);
+        navigateToCatalogProducts(navigate, item);
     };
 
     return (
