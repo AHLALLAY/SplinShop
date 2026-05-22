@@ -1,9 +1,8 @@
 import { sellerSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
-import { AppError } from '../../utils/AppError.js';
-import { getSaltRounds } from '../../config/index.js';
 import db from '../../databases/connection.js';
-import bcrypt from 'bcryptjs';
+import { hashPassword } from '../../utils/password.js';
+import { assertEmailAvailable } from '../../utils/userHelpers.js';
 
 const sellerPublicSelect = {
     id: true,
@@ -19,14 +18,9 @@ class UserService {
     async addSeller(seller) {
         const { name, email, password, phone } = parseOrThrow(sellerSchema, seller);
 
-        const isEmailExist = await db.prisma.user.findUnique({
-            where: { email },
-        });
-        if (isEmailExist) {
-            throw new AppError('Email déjà utilisé', 409);
-        }
+        await assertEmailAvailable(email);
 
-        const passwordHashed = await bcrypt.hash(password, getSaltRounds());
+        const passwordHashed = await hashPassword(password);
         return db.prisma.user.create({
             data: {
                 name,
