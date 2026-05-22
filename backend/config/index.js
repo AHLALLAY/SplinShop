@@ -7,7 +7,7 @@ const envSchema = z.object({
     API_BASE_URL: z.string().default('/api/v1'),
     CORS_ORIGIN: z.string().optional(),
     DATABASE_URL: z.string().optional(),
-    JWT_SECRET: z.string().optional(),
+    JWT_SECRET: z.string().min(1, 'JWT_SECRET est requis'),
     JWT_EXPIRES_IN: z.string().default('24h'),
     BCRYPT_SALT_ROUNDS: z.coerce.number().default(10),
     RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900_000),
