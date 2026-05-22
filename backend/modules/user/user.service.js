@@ -15,6 +15,11 @@ const sellerPublicSelect = {
 };
 
 class UserService {
+    /**
+     * Crée un vendeur (admin).
+     * @param {object} seller
+     * @returns {Promise<object>}
+     */
     async addSeller(seller) {
         const { name, email, password, phone } = parseOrThrow(sellerSchema, seller);
 
@@ -33,6 +38,10 @@ class UserService {
         });
     }
 
+    /**
+     * Liste les vendeurs actifs.
+     * @returns {Promise<object[]>}
+     */
     async getSellers() {
         return db.prisma.user.findMany({
             where: {

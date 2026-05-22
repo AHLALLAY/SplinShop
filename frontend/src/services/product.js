@@ -1,6 +1,7 @@
 import callEndpoint from './apiHandler';
 
 class Product {
+    /** @param {object} product */
     async addProduct(product) {
         const body = new FormData();
         body.append('catalogId', product.catalogId);
@@ -19,6 +20,11 @@ class Product {
         return response.data;
     }
 
+    /**
+     * Liste les produits actifs d’un catalogue.
+     * @param {string} catalogId
+     * @returns {Promise<object[]>}
+     */
     async loadByCatalog(catalogId) {
         const response = await callEndpoint(
             `/products?catalogId=${encodeURIComponent(catalogId)}`,

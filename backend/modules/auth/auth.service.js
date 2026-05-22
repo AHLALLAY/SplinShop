@@ -8,6 +8,11 @@ import { hashPassword } from '../../utils/password.js';
 import { assertEmailAvailable, assertPhoneAvailable } from '../../utils/userHelpers.js';
 
 class AuthService {
+    /**
+     * Authentifie un utilisateur et retourne un JWT.
+     * @param {object} credentials
+     * @returns {Promise<{ id: string, name: string, email: string, role: string, token: string }>}
+     */
     async login(credentials) {
         const { email, password } = parseOrThrow(loginCredentialsSchema, credentials);
 
@@ -28,6 +33,11 @@ class AuthService {
         return toAuthResponse(user, token);
     }
 
+    /**
+     * Inscrit un client et retourne un JWT.
+     * @param {object} payload
+     * @returns {Promise<{ id: string, name: string, email: string, role: string, token: string }>}
+     */
     async registerCustomer(payload) {
         const { name, email, password, phone } = parseOrThrow(customerRegisterSchema, payload);
 

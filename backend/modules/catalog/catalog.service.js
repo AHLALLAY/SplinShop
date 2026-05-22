@@ -24,6 +24,11 @@ const catalogAdminSelect = {
 };
 
 class CatalogService {
+    /**
+     * Crée un catalogue (slug auto si absent).
+     * @param {object} catalog
+     * @param {Express.Multer.File} [file]
+     */
     async addCatalog(catalog, file) {
         let { name, slug, imgUrl, description } = parseOrThrow(catalogSchema, catalog);
         const resolvedSlug = slug ?? slugify(name);

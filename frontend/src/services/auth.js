@@ -1,6 +1,10 @@
 import callEndpoint from './apiHandler';
 
 class Authentification {
+  /**
+   * Connexion : persiste user + token dans localStorage.
+   * @param {{ email: string, password: string }} credentials
+   */
   async login(credentials) {
     const body = {
       email: credentials.email,
@@ -13,6 +17,10 @@ class Authentification {
     return response.data;
   }
 
+  /**
+   * Inscription client.
+   * @param {{ name: string, email: string, password: string, phone?: string }} payload
+   */
   async register(payload) {
     const body = {
       name: payload.name,
@@ -28,7 +36,7 @@ class Authentification {
     return response.data;
   }
 
-  logout() { 
+  logout() {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     window.location.href = '/';

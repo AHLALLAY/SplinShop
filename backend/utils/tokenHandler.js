@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
 import db from '../databases/connection.js';
+import { config } from '../config/index.js';
 
 class Token {
+    /**
+     * Extrait le JWT de l’en-tête Authorization.
+     * @param {import('http').IncomingHttpHeaders} headers
+     * @returns {string|null}
+     */
     extractToken(headers) {
         const auth = headers?.authorization;
         if (!auth || !auth.startsWith('Bearer ')) return null;

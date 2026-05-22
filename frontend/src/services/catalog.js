@@ -12,6 +12,11 @@ class Catalog {
         return callEndpoint('/catalogs/all');
     }
 
+    /**
+     * Récupère un catalogue par slug.
+     * @param {string} slug
+     * @returns {Promise<object|null>}
+     */
     async loadBySlug(slug) {
         const encoded = encodeURIComponent(slug);
         const response = await callEndpoint(`/catalogs/slug/${encoded}`);

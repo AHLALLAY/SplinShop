@@ -22,6 +22,11 @@ const productWithImagesSelect = {
 };
 
 class ProductService {
+    /**
+     * Crée un produit avec images optionnelles.
+     * @param {object} product
+     * @param {Express.Multer.File[]} [files]
+     */
     async addProduct(product, files = []) {
         const { catalogId, name, price, quantity, slug, description } = parseOrThrow(
             productSchema,
