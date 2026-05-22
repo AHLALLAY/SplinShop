@@ -4,11 +4,12 @@ import Button from '../../components/ui/Button';
 import CatalogModal from '../../components/catalog/CatalogModal';
 import CatalogCard from '../../components/catalog/CatalogCard';
 import { useCatalogs } from '../../hooks/useCatalogs';
-import { resolveCatalogSlug } from '../../utils/catalogResolve';
+import { navigateToCatalogProducts } from '../../utils/navigation';
 import catalogService from '../../services/catalog';
 
 export default function Catalog() {
     const [show, setShow] = useState(false);
+    const [feedback, setFeedback] = useState('');
     const [editingItem, setEditingItem] = useState(null);
     const { catalogs, reload, loading } = useCatalogs({ forAdmin: true });
     const navigate = useNavigate();
@@ -21,8 +22,7 @@ export default function Catalog() {
     const handleDelete = (item) => {
         const label = item?.name ? `« ${item.name} »` : 'cet élément';
         if (!window.confirm(`Supprimer ${label} du catalogue ?`)) return;
-        // TODO(api): brancher DELETE catalog quand l’endpoint sera disponible
-        window.alert("La suppression sera disponible lorsque l'API sera en place.");
+        setFeedback("La suppression sera disponible lorsque l'API DELETE sera en place.");
     };
 
     const handleHide = async (item) => {
@@ -39,7 +39,7 @@ export default function Catalog() {
             await reload();
         } catch (error) {
             console.error('Erreur visibilité catalogue:', error);
-            window.alert(
+            setFeedback(
                 error?.message ||
                     (item.isHidden
                         ? 'Impossible d’afficher ce catalogue.'
@@ -49,9 +49,7 @@ export default function Catalog() {
     };
 
     const loadProductOfCatalog = (item) => {
-        const slug = resolveCatalogSlug(item);
-        if (!slug) return;
-        navigate(`/catalog/${encodeURIComponent(slug)}/products`);
+        navigateToCatalogProducts(navigate, item, { admin: true });
     };
 
     const closeModal = () => {
@@ -62,6 +60,11 @@ export default function Catalog() {
 
     return (
         <div className="flex flex-col">
+            {feedback && (
+                <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-amber-200">
+                    {feedback}
+                </p>
+            )}
             <div className="flex justify-between">
                 <h1 className="text-amber-600 font-bold text-2xl">Catalogue</h1>
                 <Button
