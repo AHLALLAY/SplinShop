@@ -12,6 +12,12 @@ class Catalog {
         return callEndpoint('/catalogs/all');
     }
 
+    async loadBySlug(slug) {
+        const encoded = encodeURIComponent(slug);
+        const response = await callEndpoint(`/catalogs/slug/${encoded}`);
+        return response.data ?? null;
+    }
+
     async addCatalog(catalog) {
         const body = new FormData();
         body.append('name', catalog.name);
