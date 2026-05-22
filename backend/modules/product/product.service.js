@@ -1,10 +1,9 @@
 import { productSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
-import { AppError } from '../../utils/AppError.js';
 import { rethrowPrismaError } from '../../utils/prismaErrors.js';
 import db from '../../databases/connection.js';
 import uploadService from '../../upload/upload.service.js';
-import { z } from 'zod';
+import { parseCatalogId, assertCatalogExists } from '../../utils/catalogHelpers.js';
 
 const productWithImagesSelect = {
     id: true,
@@ -28,6 +27,8 @@ class ProductService {
             productSchema,
             product,
         );
+
+        await assertCatalogExists(catalogId);
 
         const fileList = Array.isArray(files) ? files : [];
         const uploadedObjects = [];
@@ -75,14 +76,12 @@ class ProductService {
     }
 
     async getProductsByCatalog(catalogId) {
-        const idResult = z.uuid({ message: 'catalogue invalide' }).safeParse(catalogId);
-        if (!idResult.success) {
-            throw new AppError('catalogue invalide', 400);
-        }
+        const id = parseCatalogId(catalogId);
+        await assertCatalogExists(id);
 
         return db.prisma.product.findMany({
             where: {
-                catalogId: idResult.data,
+                catalogId: id,
                 isDeleted: false,
                 status: 'active',
             },
