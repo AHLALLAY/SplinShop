@@ -8,7 +8,7 @@ export default async function isAuthenticated(req, res, next) {
         await tokenHandler.bindUserToRequest(req, jwtDecoded.id);
         return next();
     } catch {
-        sendApiResponse(res, {
+        return sendApiResponse(res, {
             status: 401,
             success: false,
             message: 'Authentification requise',
