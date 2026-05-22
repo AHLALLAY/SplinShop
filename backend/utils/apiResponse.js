@@ -1,3 +1,8 @@
+/**
+ * Envoie une réponse JSON homogène `{ success, message, data? | fieldErrors? }`.
+ * @param {import('express').Response} res
+ * @param {{ success: boolean, status: number, message: string, data?: unknown, fieldErrors?: object }} options
+ */
 export function sendApiResponse(res, { success, status, message, data, fieldErrors }) {
     const body = { success, message };
     if (success) {

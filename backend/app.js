@@ -1,3 +1,7 @@
+/**
+ * Application Express : middlewares globaux et montage des routes API.
+ * @module app
+ */
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';

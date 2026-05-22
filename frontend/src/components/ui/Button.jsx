@@ -1,3 +1,10 @@
+/**
+ * Bouton primaire (style ambre).
+ * @param {object} props
+ * @param {import('react').ReactNode} props.children
+ * @param {string} [props.className]
+ * @param {'button'|'submit'|'reset'} [props.type]
+ */
 export default function Button({ children, className = '', type = 'button', ...props }) {
   const default_style =
     'rounded-xl bg-amber-600 py-3 font-semibold text-white shadow-md shadow-amber-600/20 transition hover:bg-amber-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 active:scale-[0.98]';

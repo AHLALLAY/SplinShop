@@ -1,3 +1,7 @@
+/**
+ * Point d’entrée HTTP : connexion BDD, admin par défaut, écoute du port.
+ * @module server
+ */
 import app from './app.js';
 import { config } from './config/index.js';
 import db from './databases/connection.js';

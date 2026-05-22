@@ -1,3 +1,12 @@
+/**
+ * Modale accessible (dialog + overlay).
+ * @param {object} props
+ * @param {boolean} props.open
+ * @param {() => void} props.onClose
+ * @param {string} props.title
+ * @param {import('react').ReactNode} [props.children]
+ * @param {import('react').ReactNode} [props.footer]
+ */
 export default function Modal({
   open,
   onClose,
