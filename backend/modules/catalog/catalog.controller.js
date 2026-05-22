@@ -33,6 +33,16 @@ class CatalogController {
         });
     });
 
+    getCatalogBySlug = asyncHandler(async (req, res) => {
+        const catalog = await catalogService.getCatalogBySlug(req.params.slug, false);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'Catégorie trouvée',
+            data: catalog || null,
+        });
+    });
+
     updateCatalog = asyncHandler(async (req, res) => {
         const catalog = await catalogService.updateCatalog(req.params.id, req.body, req.file);
         sendApiResponse(res, {
