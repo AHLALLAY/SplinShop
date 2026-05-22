@@ -9,11 +9,21 @@ class Token {
         return token || null;
     }
 
+    /**
+     * Vérifie et décode un JWT.
+     * @param {string|null} token
+     * @returns {object}
+     */
     verifyToken(token) {
         if (!token) throw new Error('Missing or invalid token');
-        return jwt.verify(token, process.env.JWT_SECRET);
+        return jwt.verify(token, config.JWT_SECRET);
     }
 
+    /**
+     * Charge l’utilisateur en BDD et l’attache à `req.user`.
+     * @param {import('express').Request} req
+     * @param {string} userId
+     */
     async bindUserToRequest(req, userId) {
         const user = await db.prisma.user.findUnique({
             where: { id: userId },
