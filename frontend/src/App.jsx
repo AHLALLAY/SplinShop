@@ -31,6 +31,7 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="sellers" element={<Seller />} />
                     <Route path="catalog" element={<Catalog />} />
+                    <Route path="catalog/:catalogSlug/products" element={<Product adminContext />} />
                 </Route>
             </Routes>
         </BrowserRouter>
