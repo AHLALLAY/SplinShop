@@ -1,6 +1,7 @@
 import { productSchema } from '../../utils/validationRules.js';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
 import { rethrowPrismaError } from '../../utils/prismaErrors.js';
+import { AppError } from '../../utils/AppError.js';
 import db from '../../databases/connection.js';
 import uploadService from '../../upload/upload.service.js';
 import { parseCatalogId, assertCatalogExists } from '../../utils/catalogHelpers.js';
@@ -15,6 +16,7 @@ const productWithImagesSelect = {
     description: true,
     createdAt: true,
     updatedAt: true,
+    isHidden: true,
     images: {
         select: { id: true, imgUrl: true, isPrimary: true },
         orderBy: [{ isPrimary: 'desc' }, { id: 'asc' }],
@@ -93,6 +95,25 @@ class ProductService {
             orderBy: { createdAt: 'desc' },
             select: productWithImagesSelect,
         });
+    }
+
+    async hideOrShowProduct(productId) {
+        const product = await db.prisma.product.findUnique({
+            where: { id: productId },
+        });
+        if (!product || product.isDeleted) {
+            throw new AppError('Produit introuvable', 404);
+        }
+        try {
+            const newValue = !product.isHidden;
+            return await db.prisma.product.update({
+                where: { id: productId },
+                data: { isHidden: newValue },
+                select: productWithImagesSelect,
+            });
+        } catch (e) {
+            rethrowPrismaError(e, 'Erreur lors de la modification du produit.');
+        }
     }
 }
 
