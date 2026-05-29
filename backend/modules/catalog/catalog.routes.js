@@ -32,4 +32,6 @@ router.patch(
     catalogController.updateCatalog,
 );
 
+router.get('/product-image', catalogController.loadProductImages);
+
 export default router;

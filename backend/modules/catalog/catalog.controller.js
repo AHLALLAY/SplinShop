@@ -1,4 +1,5 @@
 import catalogService from './catalog.service.js';
+import productService from '../product/product.service.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { sendApiResponse } from '../../utils/apiResponse.js';
 
@@ -62,6 +63,17 @@ class CatalogController {
                 ? 'La catégorie a été masquée'
                 : 'La catégorie est à nouveau visible',
             data: catalog || null,
+        });
+    });
+
+    loadProductImages = asyncHandler(async (req, res) => {
+        const images = await catalogService.loadProductImages();
+        console.log('[catalog.controller] :', images);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'les images qui existent',
+            data: images || null,
         });
     });
 }

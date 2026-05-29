@@ -23,6 +23,12 @@ const catalogAdminSelect = {
     isHidden: true,
 };
 
+const imagesSelect = {
+    id: true,
+    imgUrl: true,
+    isPrimary: true,
+};
+
 class CatalogService {
     /**
      * Crée un catalogue (slug auto si absent).
@@ -126,13 +132,13 @@ class CatalogService {
             });
 
             if (oldObjectName) {
-                await uploadService.removeObject(oldObjectName).catch(() => {});
+                await uploadService.removeObject(oldObjectName).catch(() => { });
             }
 
             return updated;
         } catch (e) {
             if (uploadedFile?.objectName) {
-                await uploadService.removeObject(uploadedFile.objectName).catch(() => {});
+                await uploadService.removeObject(uploadedFile.objectName).catch(() => { });
             }
             rethrowPrismaError(e, 'Ce nom ou ce slug est déjà utilisé.');
         }
@@ -156,6 +162,15 @@ class CatalogService {
         } catch (e) {
             rethrowPrismaError(e, 'Erreur lors de la modification du catalogue.');
         }
+    }
+
+    async loadProductImages() {
+        const images = await db.prisma.image.findMany({
+            where: { isPrimary: true },
+            select: imagesSelect,
+        });
+        console.log('[catalog.service] :', images);
+        return images;
     }
 }
 
