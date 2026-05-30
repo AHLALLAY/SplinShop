@@ -31,6 +31,17 @@ class Product {
         );
         return response?.data ?? [];
     }
+
+    async loadByCatalogAdmin(catalogId) {
+        const response = await callEndpoint(
+            `/products/all?catalogId=${encodeURIComponent(catalogId)}`,
+        );
+        return response?.data ?? [];
+    }
+
+    async hideOrShowProduct(productId) {
+        return callEndpoint(`/products/${productId}/hide-or-show`, 'PATCH');
+    }
 }
 
 export default new Product();

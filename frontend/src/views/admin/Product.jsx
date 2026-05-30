@@ -33,14 +33,16 @@ export default function Product({ adminContext = false }) {
         }
         setLoadingProducts(true);
         try {
-            const list = await productService.loadByCatalog(id);
+            const list = adminView
+                ? await productService.loadByCatalogAdmin(id)
+                : await productService.loadByCatalog(id);
             setProducts(Array.isArray(list) ? list : []);
         } catch {
             setProducts([]);
         } finally {
             setLoadingProducts(false);
         }
-    }, []);
+    }, [adminView]);
 
     useEffect(() => {
         let cancelled = false;
@@ -83,6 +85,16 @@ export default function Product({ adminContext = false }) {
 
     const handleEdit = (item) => {
         setActionMessage(`Modification de « ${item.name} » — à brancher prochainement.`);
+    };
+
+    const handleHide = async (item) => {
+        try {
+            const res = await productService.hideOrShowProduct(item.id);
+            setActionMessage(res?.message || 'Statut mis à jour.');
+            loadProducts(catalogId);
+        } catch (err) {
+            setActionMessage(err?.message || 'Erreur lors de la mise à jour du statut.');
+        }
     };
 
     const handleDelete = (item) => {
@@ -161,6 +173,7 @@ export default function Product({ adminContext = false }) {
                             data={filteredProducts}
                             adminMode={adminView}
                             onEdit={adminView ? handleEdit : undefined}
+                            onHide={adminView ? handleHide : undefined}
                             onDelete={adminView ? handleDelete : undefined}
                         />
                     )}
