@@ -21,8 +21,8 @@ export default function ImageGallery({ images, productName = '' }) {
   };
 
   return (
-    <div className="flex min-h-0 flex-col border-b border-amber-100/80 bg-linear-to-br from-amber-50/60 via-stone-50 to-white lg:w-[46%] lg:border-b-0 lg:border-r">
-      <div className="relative min-h-[220px] flex-1 sm:min-h-[260px] lg:min-h-[300px]">
+    <div className="flex min-h-0 flex-col border-b border-amber-100/80 bg-linear-to-br from-amber-50/60 via-stone-50 to-white w-full">
+      <div className="relative min-h-55 flex-1 sm:min-h-65 lg:min-h-75">
         {showMain ? (
           <img
             src={mainSrc}
