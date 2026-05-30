@@ -68,7 +68,6 @@ class CatalogController {
 
     loadProductImages = asyncHandler(async (req, res) => {
         const images = await catalogService.loadProductImages();
-        console.log('[catalog.controller] :', images);
         sendApiResponse(res, {
             status: 200,
             success: true,

@@ -169,7 +169,6 @@ class CatalogService {
             where: { isPrimary: true },
             select: imagesSelect,
         });
-        console.log('[catalog.service] :', images);
         return images;
     }
 }
