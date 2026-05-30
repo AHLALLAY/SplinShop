@@ -63,7 +63,7 @@ export default function HeroSection() {
     }
 
     return (
-        <div className="relative w-full h-56 sm:h-80 md:h-[400px] overflow-hidden rounded-3xl border border-amber-200/50 bg-stone-100 shadow-md shadow-amber-950/5 group">
+        <div className="relative w-full h-56 sm:h-80 md:h-100 overflow-hidden rounded-3xl border border-amber-200/50 bg-stone-100 shadow-md shadow-amber-950/5 group">
             {/* Slides */}
             <div className="relative h-full w-full">
                 {images.map((img, idx) => (

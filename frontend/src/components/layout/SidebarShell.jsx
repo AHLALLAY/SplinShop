@@ -91,7 +91,7 @@ export default function SidebarShell({
                             alt="Logo SplinEdge Shop"
                             className="h-8 w-8 rounded-full border border-amber-600 object-cover"
                         />
-                        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-amber-800">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-amber-800">
                             {badgeLabel}
                         </span>
                     </div>
