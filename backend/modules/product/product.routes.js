@@ -16,5 +16,11 @@ router.post(
 );
 router.get('/', productController.getProductsByCatalog);
 router.get('/all', isAuthenticated, requireAdmin, productController.getProductsByCatalogAdmin);
-
+    
+router.patch(
+    '/:id/hide-or-show',
+    isAuthenticated,
+    requireAdmin,
+    productController.hideOrShowProduct,
+);
 export default router;

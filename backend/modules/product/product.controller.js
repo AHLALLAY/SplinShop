@@ -41,6 +41,18 @@ class ProductController {
             data: products || null,
         });
     });
+
+    hideOrShowProduct = asyncHandler(async (req, res) => {
+        const product = await productService.hideOrShowProduct(req.params.id);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: product?.isHidden
+                ? 'Le produit a été masqué'
+                : 'Le produit est à nouveau visible',
+            data: product || null,
+        });
+    });
 }
 
 export default new ProductController();
