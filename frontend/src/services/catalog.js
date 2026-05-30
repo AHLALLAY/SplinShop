@@ -48,6 +48,10 @@ class Catalog {
     async hideCatalog(catalogId) {
         return callEndpoint(`/catalogs/${catalogId}/hide-or-show`, 'PATCH');
     }
+
+    async loadProductImages(){
+        return callEndpoint('/catalogs/product-image');
+    }
 }
 
 export default new Catalog();
