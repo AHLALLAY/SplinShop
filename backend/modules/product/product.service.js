@@ -82,17 +82,20 @@ class ProductService {
         }
     }
 
-    async getProductsByCatalog(catalogId) {
+    async getProductsByCatalog(catalogId, forAdmin = false) {
         const id = parseCatalogId(catalogId);
         await assertCatalogExists(id);
 
+        const where = {
+            catalogId: id,
+            isDeleted: false,
+            status: 'active',
+        };
+        if (!forAdmin) where.isHidden = false;
+
         return db.prisma.product.findMany({
-            where: {
-                catalogId: id,
-                isDeleted: false,
-                status: 'active',
-            },
-            orderBy: { createdAt: 'desc' },
+            where,
+            orderBy: { createdAt: 'asc' },
             select: productWithImagesSelect,
         });
     }

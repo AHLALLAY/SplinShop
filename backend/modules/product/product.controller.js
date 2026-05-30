@@ -19,11 +19,25 @@ class ProductController {
         if (!catalogId) {
             throw new AppError("L'identifiant du catalogue est requis", 400);
         }
-        const products = await productService.getProductsByCatalog(catalogId);
+        const products = await productService.getProductsByCatalog(catalogId, false);
         sendApiResponse(res, {
             status: 200,
             success: true,
             message: 'les produits qui existent',
+            data: products || null,
+        });
+    });
+
+    getProductsByCatalogAdmin = asyncHandler(async (req, res) => {
+        const catalogId = req.query.catalogId;
+        if (!catalogId) {
+            throw new AppError("L'identifiant du catalogue est requis", 400);
+        }
+        const products = await productService.getProductsByCatalog(catalogId, true);
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'les produits qui existent (vue admin)',
             data: products || null,
         });
     });

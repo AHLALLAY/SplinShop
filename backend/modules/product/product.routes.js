@@ -15,5 +15,6 @@ router.post(
     productController.addProduct,
 );
 router.get('/', productController.getProductsByCatalog);
+router.get('/all', isAuthenticated, requireAdmin, productController.getProductsByCatalogAdmin);
 
 export default router;
