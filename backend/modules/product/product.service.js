@@ -75,8 +75,8 @@ class ProductService {
                 await uploadService.removeObject(objectName);
             }
             if (productId) {
-                await db.prisma.image.deleteMany({ where: { productId } }).catch(() => {});
-                await db.prisma.product.delete({ where: { id: productId } }).catch(() => {});
+                await db.prisma.image.deleteMany({ where: { productId } }).catch(() => { });
+                await db.prisma.product.delete({ where: { id: productId } }).catch(() => { });
             }
             rethrowPrismaError(e, 'Ce slug est déjà utilisé.');
         }
