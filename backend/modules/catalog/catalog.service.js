@@ -31,11 +31,12 @@ const imagesSelect = {
 
 class CatalogService {
     /**
-     * Crée un catalogue (slug auto si absent).
-     * @param {object} catalog
-     * @param {Express.Multer.File} [file]
+     * Crée un catalogue.
+     * @param {object} catalog - Données du catalogue
+     * @param {Express.Multer.File} [file] - Image du catalogue
+     * @returns {Promise<object>} Le catalogue créé
      */
-    async addCatalog(catalog, file) {
+    async add(catalog, file) {
         let { name, slug, imgUrl, description } = parseOrThrow(catalogSchema, catalog);
         const resolvedSlug = slug ?? slugify(name);
         let uploadedFile = null;
@@ -63,13 +64,14 @@ class CatalogService {
         }
     }
 
-    async getCatalogs(forAdmin = false) {
-        const where = {
-            isDeleted: false,
-        };
-        if (!forAdmin) {
-            where.isHidden = false;
-        }
+    /**
+     * Récupère tous les catalogues.
+     * @param {boolean} forAdmin - Inclus les masqués si true
+     * @returns {Promise<object[]>} Liste des catalogues
+     */
+    async getAll(forAdmin = false) {
+        const where = { isDeleted: false };
+        if (!forAdmin) where.isHidden = false;
 
         return db.prisma.catalog.findMany({
             where,
@@ -78,28 +80,34 @@ class CatalogService {
         });
     }
 
-    async getCatalogBySlug(slug, forAdmin = false) {
+    /**
+     * Récupère un catalogue par son slug.
+     * @param {string} slug - Le slug du catalogue
+     * @param {boolean} forAdmin - Inclus les masqués si true
+     * @returns {Promise<object>} Le catalogue trouvé
+     */
+    async getBySlug(slug, forAdmin = false) {
         const catalog = await findCatalogBySlug(slug);
-        if (!catalog) {
-            throw new AppError('Catalogue introuvable', 404);
-        }
-        if (!forAdmin && catalog.isHidden) {
-            throw new AppError('Catalogue introuvable', 404);
-        }
+        if (!catalog) throw new AppError('Catalogue introuvable', 404);
+        if (!forAdmin && catalog.isHidden) throw new AppError('Catalogue introuvable', 404);
+
         return db.prisma.catalog.findUnique({
             where: { id: catalog.id },
             select: forAdmin ? catalogAdminSelect : catalogPublicSelect,
         });
     }
 
-    async updateCatalog(catalogId, catalog, file) {
+    /**
+     * Met à jour un catalogue existant.
+     * @param {string} catalogId - ID du catalogue
+     * @param {object} catalog - Nouvelles données
+     * @param {Express.Multer.File} [file] - Nouvelle image
+     * @returns {Promise<object>} Le catalogue mis à jour
+     */
+    async update(catalogId, catalog, file) {
         const id = parseCatalogId(catalogId);
-        const existing = await db.prisma.catalog.findUnique({
-            where: { id },
-        });
-        if (!existing || existing.isDeleted) {
-            throw new AppError('Catalogue introuvable', 404);
-        }
+        const existing = await db.prisma.catalog.findUnique({ where: { id } });
+        if (!existing || existing.isDeleted) throw new AppError('Catalogue introuvable', 404);
 
         const { name, slug, description } = parseOrThrow(catalogSchema, catalog);
         const resolvedSlug = slug ?? slugify(name);
@@ -122,19 +130,11 @@ class CatalogService {
         try {
             const updated = await db.prisma.catalog.update({
                 where: { id },
-                data: {
-                    name,
-                    slug: resolvedSlug,
-                    description,
-                    imgUrl,
-                },
+                data: { name, slug: resolvedSlug, description, imgUrl },
                 select: catalogAdminSelect,
             });
 
-            if (oldObjectName) {
-                await uploadService.removeObject(oldObjectName).catch(() => { });
-            }
-
+            if (oldObjectName) await uploadService.removeObject(oldObjectName).catch(() => { });
             return updated;
         } catch (e) {
             if (uploadedFile?.objectName) {
@@ -144,19 +144,20 @@ class CatalogService {
         }
     }
 
-    async hideOrShowCatalog(catalogId) {
+    /**
+     * Masque ou affiche un catalogue.
+     * @param {string} catalogId - ID du catalogue
+     * @returns {Promise<object>} Le catalogue mis à jour
+     */
+    async toggleVisibility(catalogId) {
         const id = parseCatalogId(catalogId);
-        const catalog = await db.prisma.catalog.findUnique({
-            where: { id },
-        });
-        if (!catalog || catalog.isDeleted) {
-            throw new AppError('Catalogue introuvable', 404);
-        }
+        const catalog = await db.prisma.catalog.findUnique({ where: { id } });
+        if (!catalog || catalog.isDeleted) throw new AppError('Catalogue introuvable', 404);
+
         try {
-            const newValue = !catalog.isHidden;
             return await db.prisma.catalog.update({
                 where: { id },
-                data: { isHidden: newValue },
+                data: { isHidden: !catalog.isHidden },
                 select: catalogAdminSelect,
             });
         } catch (e) {
@@ -164,12 +165,15 @@ class CatalogService {
         }
     }
 
-    async loadProductImages() {
-        const images = await db.prisma.image.findMany({
+    /**
+     * Charge les images des produits liées.
+     * @returns {Promise<object[]>} Liste des images principales
+     */
+    async getImages() {
+        return db.prisma.image.findMany({
             where: { isPrimary: true },
             select: imagesSelect,
         });
-        return images;
     }
 }
 
