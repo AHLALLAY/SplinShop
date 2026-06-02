@@ -34,7 +34,13 @@ function CatalogItemCard({ item, adminMode, onClick, onEdit, onHide, onDelete })
 
     return (
         <article
-            className={`group flex flex-col overflow-hidden rounded-2xl border border-amber-200/70 bg-white shadow-sm shadow-amber-950/5 transition hover:border-amber-300 hover:shadow-md hover:shadow-amber-950/10${onClick ? ' cursor-pointer' : ''}`}
+            className={`group flex flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md ${
+                adminMode && item.isHidden
+                    ? 'border-red-400 shadow-red-900/5 hover:border-red-500'
+                    : adminMode && !item.isHidden
+                    ? 'border-emerald-400 shadow-emerald-900/5 hover:border-emerald-500'
+                    : 'border-amber-200/70 shadow-amber-950/5 hover:border-amber-300 hover:shadow-amber-950/10'
+            }${onClick ? ' cursor-pointer' : ''}`}
             onClick={onClick ? handleCardActivate : undefined}
             onKeyDown={
                 onClick
