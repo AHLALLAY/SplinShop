@@ -1,10 +1,14 @@
 import { useState } from 'react';
-import product from '../services/product';
+import productService from '../services/product';
 import { slugify } from '../utils/slug';
 import { formatApiError } from '../utils/formatApiError';
 
+/**
+ * Gère le formulaire de produit.
+ * @param {{ catalogId: string, item?: object, onClose: Function }} props
+ */
 export function useProductForm({ catalogId, item, onClose }) {
-  const isEdit = Boolean(item?.id);
+  const isEditing = Boolean(item?.id);
   const [name, setName] = useState(item?.name ?? '');
   const [price, setPrice] = useState(item?.price != null ? String(item.price) : '');
   const [quantity, setQuantity] = useState(item?.quantity != null ? String(item.quantity) : '1');
@@ -13,7 +17,7 @@ export function useProductForm({ catalogId, item, onClose }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const resetForm = () => {
+  const reset = () => {
     setName('');
     setPrice('');
     setQuantity('1');
@@ -22,9 +26,9 @@ export function useProductForm({ catalogId, item, onClose }) {
     setError('');
   };
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (isEdit) {
+    if (isEditing) {
       setError("La modification sera disponible lorsque l'API sera en place.");
       return;
     }
@@ -51,7 +55,7 @@ export function useProductForm({ catalogId, item, onClose }) {
     try {
       setError('');
       setLoading(true);
-      await product.addProduct({
+      await productService.add({
         catalogId,
         name: name.trim(),
         price: priceNum,
@@ -60,7 +64,7 @@ export function useProductForm({ catalogId, item, onClose }) {
         description: description.trim() || undefined,
         images,
       });
-      resetForm();
+      reset();
       setLoading(false);
       onClose();
     } catch (err) {
@@ -70,7 +74,7 @@ export function useProductForm({ catalogId, item, onClose }) {
   };
 
   return {
-    isEdit,
+    isEditing,
     name,
     setName,
     price,
@@ -84,6 +88,6 @@ export function useProductForm({ catalogId, item, onClose }) {
     error,
     setError,
     loading,
-    handleSubmit,
+    submit,
   };
 }
