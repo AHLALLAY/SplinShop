@@ -1,11 +1,11 @@
 import express from 'express';
-import userController from './user.controller.js';
+import userCtrl from './user.ctrl.js';
 import isAuthenticated from '../../middlewares/auth.middleware.js';
 import requireAdmin from '../../middlewares/admin.middleware.js';
 
 const router = express.Router();
 
-router.post('/', isAuthenticated, requireAdmin, userController.addSeller);
-router.get('/', isAuthenticated, requireAdmin, userController.getSellers);
+router.post('/', isAuthenticated, requireAdmin, userCtrl.add);
+router.get('/', isAuthenticated, requireAdmin, userCtrl.getAll);
 
 export default router;

@@ -1,7 +1,7 @@
 import express from 'express';
 import isAuthenticated from '../../middlewares/auth.middleware.js';
 import requireAdmin from '../../middlewares/admin.middleware.js';
-import productController from './product.controller.js';
+import productCtrl from './product.ctrl.js';
 import { uploadProductImage, handleMulterError } from '../../middlewares/upload.middleware.js';
 
 const router = express.Router();
@@ -12,15 +12,15 @@ router.post(
     requireAdmin,
     uploadProductImage,
     handleMulterError,
-    productController.addProduct,
+    productCtrl.add,
 );
-router.get('/', productController.getProductsByCatalog);
-router.get('/all', isAuthenticated, requireAdmin, productController.getProductsByCatalogAdmin);
+router.get('/', productCtrl.getByCatalog);
+router.get('/all', isAuthenticated, requireAdmin, productCtrl.getAdminByCatalog);
     
 router.patch(
     '/:id/hide-or-show',
     isAuthenticated,
     requireAdmin,
-    productController.hideOrShowProduct,
+    productCtrl.toggleVisibility,
 );
 export default router;
