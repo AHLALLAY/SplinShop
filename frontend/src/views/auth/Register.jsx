@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { isAuthenticated } from '../../utils/authSession';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import Auth from '../../services/auth';
+import authService from '../../services/auth';
 import { fieldClass } from '../../utils/formClasses';
 import { formatApiError } from '../../utils/formatApiError';
 
@@ -45,7 +45,7 @@ export default function Register() {
         }
 
         try {
-            const data = await Auth.register({
+            const data = await authService.register({
                 name,
                 email,
                 password,

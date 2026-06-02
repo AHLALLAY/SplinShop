@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { isAdmin, isCustomer } from '../../utils/authSession';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import Auth from '../../services/auth';
+import authService from '../../services/auth';
 import { fieldClass } from '../../utils/formClasses';
 
 export default function Login() {
@@ -47,7 +47,7 @@ export default function Login() {
         e.preventDefault();
         try {
             setError('');
-            const loginResponse = await Auth.login({ email, password });
+            const loginResponse = await authService.login({ email, password });
             const role = loginResponse.role;
             if (role === 'admin') {
                 navigate(adminRedirectTarget(), { replace: true });

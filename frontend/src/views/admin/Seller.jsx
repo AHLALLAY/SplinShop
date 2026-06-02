@@ -7,7 +7,7 @@ import { formatApiError } from '../../utils/formatApiError';
 
 export default function Seller() {
     const { data: sellers, loading, reload } = useAsyncData(
-        () => sellerService.loadSeller(),
+        () => sellerService.getAll(),
         [],
     );
     const [feedback, setFeedback] = useState('');

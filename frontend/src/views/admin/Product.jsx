@@ -34,8 +34,8 @@ export default function Product({ adminContext = false }) {
         setLoadingProducts(true);
         try {
             const list = adminView
-                ? await productService.loadByCatalogAdmin(id)
-                : await productService.loadByCatalog(id);
+                ? await productService.getAdminByCatalog(id)
+                : await productService.getByCatalog(id);
             setProducts(Array.isArray(list) ? list : []);
         } catch {
             setProducts([]);
@@ -54,7 +54,7 @@ export default function Product({ adminContext = false }) {
             setLoadingCatalog(true);
             try {
                 const decodedSlug = decodeURIComponent(catalogSlug);
-                const found = await catalogService.loadBySlug(decodedSlug);
+                const found = await catalogService.getBySlug(decodedSlug);
                 if (cancelled) return;
                 setCatalogName(found?.name ?? '');
                 const id = found?.id ?? null;
@@ -89,7 +89,7 @@ export default function Product({ adminContext = false }) {
 
     const handleHide = async (item) => {
         try {
-            const res = await productService.hideOrShowProduct(item.id);
+            const res = await productService.toggleVisibility(item.id);
             setActionMessage(res?.message || 'Statut mis à jour.');
             loadProducts(catalogId);
         } catch (err) {

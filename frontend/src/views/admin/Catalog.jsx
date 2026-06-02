@@ -35,7 +35,7 @@ export default function Catalog() {
         if (!window.confirm(confirmMessage)) return;
 
         try {
-            await catalogService.hideCatalog(item.id);
+            await catalogService.toggleVisibility(item.id);
             await reload();
         } catch (error) {
             console.error('Erreur visibilité catalogue:', error);
