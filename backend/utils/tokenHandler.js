@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
 import db from '../databases/connection.js';
+import { config } from '../config/index.js';
 
 class Token {
+    /**
+     * Extrait le JWT de l’en-tête Authorization.
+     * @param {import('http').IncomingHttpHeaders} headers
+     * @returns {string|null}
+     */
     extractToken(headers) {
         const auth = headers?.authorization;
         if (!auth || !auth.startsWith('Bearer ')) return null;
@@ -9,16 +15,28 @@ class Token {
         return token || null;
     }
 
+    /**
+     * Vérifie et décode un JWT.
+     * @param {string|null} token
+     * @returns {object}
+     */
     verifyToken(token) {
-        if (!token) throw new Error("Non authentifié");
-        return jwt.verify(token, process.env.JWT_SECRET);
+        if (!token) throw new Error('Missing or invalid token');
+        return jwt.verify(token, config.JWT_SECRET);
     }
 
+    /**
+     * Charge l’utilisateur en BDD et l’attache à `req.user`.
+     * @param {import('express').Request} req
+     * @param {string} userId
+     */
     async bindUserToRequest(req, userId) {
         const user = await db.prisma.user.findUnique({
             where: { id: userId },
         });
-        if (!user || user.isDeleted || user.status === 'suspend') throw new Error('Non authentifié');
+        if (!user || user.isDeleted || user.status === 'suspend') {
+            throw new Error('User not found or not allowed');
+        }
         req.user = user;
     }
 }

@@ -1,14 +1,24 @@
-import useEndPoint from "./apiHandler";
+import callEndpoint from './apiHandler';
 
-class Seller {
-    async loadSeller() {
-        try {
-            const sellers = await useEndPoint("/seller");
-            return sellers.data;
-        } catch (err) {
-            throw err;
-        }
+class SellerService {
+    /** 
+     * Récupère la liste des vendeurs actifs.
+     * @returns {Promise<object[]>} Liste des vendeurs
+     */
+    async getAll() {
+        const response = await callEndpoint('/sellers');
+        return response.data;
+    }
+
+    /**
+     * Crée un nouveau vendeur.
+     * @param {{ name: string, email: string, password: string, phone?: string }} payload
+     * @returns {Promise<object>} Le vendeur créé
+     */
+    async add(payload) {
+        const response = await callEndpoint('/sellers', 'POST', payload);
+        return response.data;
     }
 }
 
-export default new Seller();
+export default new SellerService();

@@ -1,0 +1,74 @@
+import { z } from 'zod';
+
+export const loginSchema = z.object({
+    email: z
+        .string({ message: 'email requis' })
+        .trim()
+        .toLowerCase()
+        .email({ message: 'email invalide' }),
+    password: z
+        .string({ message: 'mot de passe requis' })
+        .trim()
+        .min(8, { message: 'minimum 8 caractères' }),
+});
+
+const userRegisterBaseSchema = z.object({
+    name: z
+        .string({ message: 'nom requis' })
+        .trim()
+        .min(1, { message: 'nom requis' })
+        .max(30, { message: 'maximum 30 caractères' }),
+    email: z
+        .string({ message: 'email requis' })
+        .trim()
+        .toLowerCase()
+        .email({ message: 'email invalide' }),
+    password: z
+        .string({ message: 'mot de passe requis' })
+        .trim()
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,20}$/, {
+            message:
+                'mot de passe invalide (8-20 caractères, majuscule, minuscule, chiffre et symbole)',
+        }),
+    phone: z
+        .string()
+        .trim()
+        .regex(/^0[67]\d{8}$/, { message: 'numéro invalide (ex: 06XXXXXXXX)' })
+        .optional(),
+});
+
+export const registerSchema = userRegisterBaseSchema;
+export const sellerSchema = userRegisterBaseSchema;
+
+/** Chaîne optionnelle : null, absent ou "" → undefined après trim */
+const optionalTrimmed = (schema) =>
+    z.preprocess((val) => {
+        if (val === null || val === undefined) return undefined;
+        if (typeof val !== 'string') return val;
+        const t = val.trim();
+        return t === '' ? undefined : t;
+    }, schema.optional());
+
+export const catalogSchema = z.object({
+    name: z
+        .string({ message: 'nom requis' })
+        .trim()
+        .min(1, { message: 'nom requis' })
+        .max(30, { message: 'maximum 30 caractères' }),
+    slug: optionalTrimmed(z.string().max(30, { message: 'slug trop long' })),
+    imgUrl: optionalTrimmed(z.string().max(2048, { message: 'url trop longue' })),
+    description: optionalTrimmed(z.string().max(5000, { message: 'description trop longue' })),
+});
+
+export const productSchema = z.object({
+    catalogId: z.uuid({ message: 'catalogue invalide' }),
+    name: z
+        .string({ message: 'nom requis' })
+        .trim()
+        .min(1, { message: 'nom requis' })
+        .max(30, { message: 'maximum 30 caractères' }),
+    price: z.coerce.number().positive({ message: 'prix invalide' }),
+    quantity: z.coerce.number().int().min(1, { message: 'quantité invalide' }),
+    slug: optionalTrimmed(z.string().max(30, { message: 'slug trop long' })),
+    description: optionalTrimmed(z.string().max(5000, { message: 'description trop longue' })),
+});

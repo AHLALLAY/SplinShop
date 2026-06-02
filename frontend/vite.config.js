@@ -8,4 +8,8 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    // Avec concurrently, évite d’effacer les logs du backend dans le même terminal
+    clearScreen: false,
+  },
 })
