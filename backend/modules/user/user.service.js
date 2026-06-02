@@ -16,11 +16,11 @@ const sellerPublicSelect = {
 
 class UserService {
     /**
-     * Crée un vendeur (admin).
-     * @param {object} seller
-     * @returns {Promise<object>}
+     * Crée un nouveau vendeur.
+     * @param {object} seller - Données du vendeur
+     * @returns {Promise<object>} Le vendeur créé
      */
-    async addSeller(seller) {
+    async add(seller) {
         const { name, email, password, phone } = parseOrThrow(sellerSchema, seller);
 
         await assertEmailAvailable(email);
@@ -39,10 +39,10 @@ class UserService {
     }
 
     /**
-     * Liste les vendeurs actifs.
-     * @returns {Promise<object[]>}
+     * Liste tous les vendeurs actifs.
+     * @returns {Promise<object[]>} Liste des vendeurs
      */
-    async getSellers() {
+    async getAll() {
         return db.prisma.user.findMany({
             where: {
                 role: 'seller',
