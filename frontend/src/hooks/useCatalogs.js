@@ -1,20 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import catalog from '../services/catalog';
+import catalogService from '../services/catalog';
 
 /**
  * Charge la liste des catalogues avec annulation au démontage.
  * @param {{ forAdmin?: boolean }} [options]
+ * @returns {{ catalogs: object[], setCatalogs: Function, loading: boolean, reload: Function }}
  */
 export function useCatalogs({ forAdmin = false } = {}) {
   const [catalogs, setCatalogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const load = forAdmin ? catalog.loadCatalogAdmin : catalog.loadCatalog;
+
+  const load = useCallback(() => {
+    return forAdmin ? catalogService.getAdminAll() : catalogService.getAll();
+  }, [forAdmin]);
 
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await load();
-      const list = res?.data;
+      const list = await load();
       setCatalogs(Array.isArray(list) ? list : []);
     } catch {
       setCatalogs([]);
@@ -30,7 +33,7 @@ export function useCatalogs({ forAdmin = false } = {}) {
       try {
         const res = await load();
         if (cancelled) return;
-        const list = res?.data;
+        const list = res;
         setCatalogs(Array.isArray(list) ? list : []);
       } catch {
         if (!cancelled) setCatalogs([]);
