@@ -56,10 +56,12 @@ function ProductItemCard({ item, adminMode, onEdit, onHide, onDelete }) {
   ];
 
   return (
-    <article className={`group relative flex flex-col h-full overflow-hidden rounded-2xl border bg-white shadow-sm shadow-amber-950/5 transition hover:shadow-md ${
+    <article className={`group relative flex flex-col h-full overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md ${
       adminMode && item.isHidden
-        ? 'opacity-65 border-dashed border-amber-300 bg-amber-50/10'
-        : 'border-amber-200/70 hover:border-amber-300'
+        ? 'border-red-400 opacity-80 bg-red-50/10 hover:border-red-500 hover:opacity-100'
+        : adminMode && !item.isHidden
+        ? 'border-emerald-400 bg-emerald-50/10 hover:border-emerald-500'
+        : 'border-amber-200/70 shadow-amber-950/5 hover:border-amber-300'
     }`}>
       {adminMode && (
         <KebabMenu
