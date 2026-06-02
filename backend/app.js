@@ -10,6 +10,7 @@ import authRoute from './modules/auth/auth.routes.js';
 import sellerRoute from './modules/user/user.routes.js';
 import catalogRoute from './modules/catalog/catalog.routes.js';
 import productRoute from './modules/product/product.routes.js';
+import statisticRoute from './modules/statistic/statistic.routes.js';
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use(`${apiBase}/auth`, authLimiter, authRoute);
 app.use(`${apiBase}/sellers`, sellerRoute);
 app.use(`${apiBase}/catalogs`, catalogRoute);
 app.use(`${apiBase}/products`, productRoute);
+app.use(`${apiBase}/statistics`, statisticRoute);
 
 app.use((err, req, res, next) => {
     if (res.headersSent) {
