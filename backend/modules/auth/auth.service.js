@@ -1,4 +1,4 @@
-import { customerRegisterSchema, loginCredentialsSchema } from '../../utils/validationRules.js';
+import { registerSchema, loginSchema } from '../../utils/validationRules.js';
 import bcrypt from 'bcryptjs';
 import { parseOrThrow } from '../../utils/parseOrThrow.js';
 import { AppError } from '../../utils/AppError.js';
@@ -7,14 +7,18 @@ import { signUserToken, toAuthResponse } from '../../utils/authTokens.js';
 import { hashPassword } from '../../utils/password.js';
 import { assertEmailAvailable, assertPhoneAvailable } from '../../utils/userHelpers.js';
 
+/**
+ * Service gérant l'authentification et l'inscription.
+ */
 class AuthService {
     /**
      * Authentifie un utilisateur et retourne un JWT.
-     * @param {object} credentials
-     * @returns {Promise<{ id: string, name: string, email: string, role: string, token: string }>}
+     * @param {object} credentials - Les identifiants (email, password).
+     * @returns {Promise<{ id: string, name: string, email: string, role: string, token: string }>} Les données de l'utilisateur avec son token.
+     * @throws {AppError} Si les identifiants sont invalides ou le compte suspendu/supprimé.
      */
     async login(credentials) {
-        const { email, password } = parseOrThrow(loginCredentialsSchema, credentials);
+        const { email, password } = parseOrThrow(loginSchema, credentials);
 
         const user = await db.prisma.user.findUnique({
             where: { email },
@@ -35,11 +39,12 @@ class AuthService {
 
     /**
      * Inscrit un client et retourne un JWT.
-     * @param {object} payload
-     * @returns {Promise<{ id: string, name: string, email: string, role: string, token: string }>}
+     * @param {object} payload - Les informations du client (name, email, password, phone).
+     * @returns {Promise<{ id: string, name: string, email: string, role: string, token: string }>} Les données de l'utilisateur avec son token.
+     * @throws {AppError} Si l'email ou le téléphone est déjà utilisé.
      */
-    async registerCustomer(payload) {
-        const { name, email, password, phone } = parseOrThrow(customerRegisterSchema, payload);
+    async register(payload) {
+        const { name, email, password, phone } = parseOrThrow(registerSchema, payload);
 
         await assertEmailAvailable(email);
         await assertPhoneAvailable(phone);
