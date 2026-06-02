@@ -1,8 +1,12 @@
 import callEndpoint from './apiHandler';
 
-class Product {
-    /** @param {object} product */
-    async addProduct(product) {
+class ProductService {
+    /**
+     * Ajoute un nouveau produit.
+     * @param {object} product - Données du produit
+     * @returns {Promise<object>} Le produit ajouté
+     */
+    async add(product) {
         const body = new FormData();
         body.append('catalogId', product.catalogId);
         body.append('name', product.name);
@@ -22,26 +26,37 @@ class Product {
 
     /**
      * Liste les produits actifs d’un catalogue.
-     * @param {string} catalogId
-     * @returns {Promise<object[]>}
+     * @param {string} catalogId - ID du catalogue
+     * @returns {Promise<object[]>} Liste des produits
      */
-    async loadByCatalog(catalogId) {
+    async getByCatalog(catalogId) {
         const response = await callEndpoint(
             `/products?catalogId=${encodeURIComponent(catalogId)}`,
         );
         return response?.data ?? [];
     }
 
-    async loadByCatalogAdmin(catalogId) {
+    /**
+     * Liste tous les produits d'un catalogue pour l'admin.
+     * @param {string} catalogId - ID du catalogue
+     * @returns {Promise<object[]>} Liste des produits
+     */
+    async getAdminByCatalog(catalogId) {
         const response = await callEndpoint(
             `/products/all?catalogId=${encodeURIComponent(catalogId)}`,
         );
         return response?.data ?? [];
     }
 
-    async hideOrShowProduct(productId) {
-        return callEndpoint(`/products/${productId}/hide-or-show`, 'PATCH');
+    /**
+     * Masque ou affiche un produit.
+     * @param {string} id - ID du produit
+     * @returns {Promise<object>}
+     */
+    async toggleVisibility(id) {
+        const response = await callEndpoint(`/products/${id}/hide-or-show`, 'PATCH');
+        return response.data;
     }
 }
 
-export default new Product();
+export default new ProductService();

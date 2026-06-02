@@ -1,21 +1,24 @@
 import callEndpoint from './apiHandler';
 
-class Seller {
-    /** @returns {Promise<object[]>} */
-    async loadSeller() {
-        const sellers = await callEndpoint('/sellers');
-        return sellers.data;
+class SellerService {
+    /** 
+     * Récupère la liste des vendeurs actifs.
+     * @returns {Promise<object[]>} Liste des vendeurs
+     */
+    async getAll() {
+        const response = await callEndpoint('/sellers');
+        return response.data;
     }
 
     /**
-     * Crée un vendeur (admin).
+     * Crée un nouveau vendeur.
      * @param {{ name: string, email: string, password: string, phone?: string }} payload
-     * @returns {Promise<object>}
+     * @returns {Promise<object>} Le vendeur créé
      */
-    async addSeller(payload) {
+    async add(payload) {
         const response = await callEndpoint('/sellers', 'POST', payload);
         return response.data;
     }
 }
 
-export default new Seller();
+export default new SellerService();
