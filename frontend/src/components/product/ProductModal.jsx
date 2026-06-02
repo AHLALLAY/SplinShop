@@ -8,7 +8,7 @@ import ProductImagePicker from './ProductImagePicker';
 export default function ProductModal({ visibility, onClose, catalogId, item = null }) {
     const form = useProductForm({ catalogId, item, onClose });
     const {
-        isEdit,
+        isEditing,
         name,
         setName,
         price,
@@ -22,7 +22,7 @@ export default function ProductModal({ visibility, onClose, catalogId, item = nu
         error,
         setError,
         loading,
-        handleSubmit,
+        submit,
     } = form;
 
     const footer = (
@@ -40,7 +40,7 @@ export default function ProductModal({ visibility, onClose, catalogId, item = nu
                 disabled={loading}
                 className="w-full rounded-xl py-2.5 font-semibold sm:w-auto sm:min-w-36"
             >
-                {loading ? 'Ajout…' : isEdit ? 'Enregistrer' : 'Ajouter'}
+                {loading ? 'Ajout…' : isEditing ? 'Enregistrer' : 'Ajouter'}
             </Button>
         </>
     );
@@ -50,15 +50,15 @@ export default function ProductModal({ visibility, onClose, catalogId, item = nu
             open={visibility}
             onClose={onClose}
             titleId="product-modal-title"
-            title={isEdit ? 'Modifier le produit' : 'Nouveau produit'}
+            title={isEditing ? 'Modifier le produit' : 'Nouveau produit'}
             subtitle={
-                isEdit
+                isEditing
                     ? 'Mettez à jour les informations du produit.'
                     : 'Ajoutez les détails et jusqu’à 5 photos (jpeg, webp).'
             }
             error={error}
             asForm
-            onSubmit={handleSubmit}
+            onSubmit={submit}
             scrollable
             footer={footer}
         >

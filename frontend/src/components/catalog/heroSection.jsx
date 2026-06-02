@@ -9,8 +9,8 @@ export default function HeroSection() {
 
     const loadImages = async () => {
         try {
-            const res = await catalogService.loadProductImages();
-            setImages(res?.data || []);
+            const res = await catalogService.getImages();
+            setImages(res ?? []);
         } catch (err) {
             console.error("Erreur lors de la récupération des images primaires:", err);
         }

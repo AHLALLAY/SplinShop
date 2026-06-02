@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import Modal from '../ui/Modal';
-import catalog from '../../services/catalog';
+import catalogService from '../../services/catalog';
 import { fieldClass, fieldClassFile } from '../../utils/formClasses';
 import { slugify } from '../../utils/slug';
 import { formatApiError } from '../../utils/formatApiError';
@@ -28,9 +28,9 @@ export default function CatalogModal({ visibility, onClose, item = null }) {
             };
 
             if (isEdit) {
-                await catalog.updateCatalog(item.id, payload);
+                await catalogService.update(item.id, payload);
             } else {
-                await catalog.addCatalog(payload);
+                await catalogService.add(payload);
             }
 
             setName('');
