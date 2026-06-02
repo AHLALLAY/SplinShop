@@ -1,5 +1,5 @@
 import express from 'express';
-import catalogController from './catalog.controller.js';
+import catalogCtrl from './catalog.ctrl.js';
 import isAuthenticated from '../../middlewares/auth.middleware.js';
 import requireAdmin from '../../middlewares/admin.middleware.js';
 import { uploadCatalogImage, handleMulterError } from '../../middlewares/upload.middleware.js';
@@ -12,16 +12,16 @@ router.post(
     requireAdmin,
     uploadCatalogImage,
     handleMulterError,
-    catalogController.addCatalog,
+    catalogCtrl.add,
 );
-router.get('/', catalogController.getCatalogs);
-router.get('/slug/:slug', catalogController.getCatalogBySlug);
-router.get('/all', isAuthenticated, requireAdmin, catalogController.getCatalogsAdmin);
+router.get('/', catalogCtrl.getAll);
+router.get('/slug/:slug', catalogCtrl.getBySlug);
+router.get('/all', isAuthenticated, requireAdmin, catalogCtrl.getAdminAll);
 router.patch(
     '/:id/hide-or-show',
     isAuthenticated,
     requireAdmin,
-    catalogController.hideOrShowCatalog,
+    catalogCtrl.toggleVisibility,
 );
 router.patch(
     '/:id',
@@ -29,9 +29,9 @@ router.patch(
     requireAdmin,
     uploadCatalogImage,
     handleMulterError,
-    catalogController.updateCatalog,
+    catalogCtrl.update,
 );
 
-router.get('/product-image', catalogController.loadProductImages);
+router.get('/product-image', catalogCtrl.getImages);
 
 export default router;
