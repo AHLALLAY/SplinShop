@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const loginCredentialsSchema = z.object({
+export const loginSchema = z.object({
     email: z
         .string({ message: 'email requis' })
         .trim()
@@ -37,7 +37,7 @@ const userRegisterBaseSchema = z.object({
         .optional(),
 });
 
-export const customerRegisterSchema = userRegisterBaseSchema;
+export const registerSchema = userRegisterBaseSchema;
 export const sellerSchema = userRegisterBaseSchema;
 
 /** Chaîne optionnelle : null, absent ou "" → undefined après trim */
