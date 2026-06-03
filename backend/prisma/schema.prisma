@@ -40,34 +40,41 @@ model User {
 }
 
 model Catalog {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  slug        String?   @unique
+  id          String       @id @default(uuid())
+  name        String       @unique
+  slug        String?      @unique
   imgUrl      String?
   description String?
-  status      Status    @default(active)
-  isHidden    Boolean   @default(false)
-  isDeleted   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  products    Product[]
+  status      Status       @default(active)
+  isHidden    Boolean      @default(false)
+  isDeleted   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  subCatalogs SubCatalog[]
+}
+
+model SubCatalog {
+  id        String    @id @default(uuid())
+  name      String
+  catalogId String
+  catalog   Catalog   @relation(fields: [catalogId], references: [id], onDelete: Restrict)
+  products  Product[]
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  catalogId   String
-  catalog     Catalog  @relation(fields: [catalogId], references: [id], onDelete: Restrict)
+  id          String       @id @default(uuid())
   name        String
-  price       Decimal  @db.Decimal(10, 2)
-  quantity    Int      @default(0)
-  slug        String?  @unique
-  description String?  @db.Text
+  price       Decimal      @db.Decimal(10, 2)
+  quantity    Int          @default(0)
+  slug        String?      @unique
+  description String?      @db.Text
+  status      Status       @default(active)
+  isHidden    Boolean      @default(false)
+  isDeleted   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   images      Image[]
-  status      Status   @default(active)
-  isHidden    Boolean  @default(false)
-  isDeleted   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  subCatalogs SubCatalog[]
 }
 
 model Image {
