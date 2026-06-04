@@ -1,5 +1,6 @@
 import express from 'express';
 import catalogCtrl from './catalog.ctrl.js';
+import subCatalogCtrl from './subCatalog.ctrl.js';
 import isAuthenticated from '../../middlewares/auth.middleware.js';
 import requireAdmin from '../../middlewares/admin.middleware.js';
 import { uploadCatalogImage, handleMulterError } from '../../middlewares/upload.middleware.js';
@@ -33,5 +34,9 @@ router.patch(
 );
 
 router.get('/product-image', catalogCtrl.getImages);
+
+// Routes pour les sous-catégories
+router.get('/:id/subcatalogs', subCatalogCtrl.getByCatalog);
+router.post('/:id/subcatalogs', isAuthenticated, requireAdmin, subCatalogCtrl.add);
 
 export default router;
