@@ -156,10 +156,10 @@ export default function ProductModal({ visibility, onClose, catalogId, item = nu
                                 placeholder="Nom de la sous-catégorie"
                                 value={newSubCatalogName}
                                 onChange={(e) => setNewSubCatalogName(e.target.value)}
-                                className={`${fieldClass} !py-1.5`}
+                                className={`${fieldClass} py-1.5!`}
                             />
-                            <Button type="button" onClick={handleAddSubCatalog} className="!py-1.5 !px-3 shrink-0">Ajouter</Button>
-                            <Button type="button" onClick={() => setAddingSubCatalog(false)} className="!py-1.5 !px-2 bg-slate-100 !text-slate-600 hover:bg-slate-200 shadow-none shrink-0"><X className="h-4 w-4" /></Button>
+                            <Button type="button" onClick={handleAddSubCatalog} className="py-1.5! px-3! shrink-0">Ajouter</Button>
+                            <Button type="button" onClick={() => setAddingSubCatalog(false)} className="py-1.5! px-2! bg-slate-100 text-slate-600! hover:bg-slate-200 shadow-none shrink-0"><X className="h-4 w-4" /></Button>
                         </div>
                     ) : (
                         <button
