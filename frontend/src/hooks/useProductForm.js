@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import productService from '../services/product';
-import { slugify } from '../utils/slug';
 import { formatApiError } from '../utils/formatApiError';
 
 /**
@@ -14,6 +13,7 @@ export function useProductForm({ catalogId, item, onClose }) {
   const [quantity, setQuantity] = useState(item?.quantity != null ? String(item.quantity) : '1');
   const [description, setDescription] = useState(item?.description ?? '');
   const [images, setImages] = useState([]);
+  const [subCatalogs, setSubCatalogs] = useState(item?.subCatalogs?.map((sc) => sc.id) ?? []);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +23,7 @@ export function useProductForm({ catalogId, item, onClose }) {
     setQuantity('1');
     setDescription('');
     setImages([]);
+    setSubCatalogs([]);
     setError('');
   };
 
@@ -60,8 +61,8 @@ export function useProductForm({ catalogId, item, onClose }) {
         name: name.trim(),
         price: priceNum,
         quantity: qtyNum,
-        slug: slugify(name),
         description: description.trim() || undefined,
+        subCatalogs,
         images,
       });
       reset();
@@ -83,6 +84,8 @@ export function useProductForm({ catalogId, item, onClose }) {
     setQuantity,
     description,
     setDescription,
+    subCatalogs,
+    setSubCatalogs,
     images,
     setImages,
     error,
