@@ -25,62 +25,114 @@ enum Status {
   suspend
 }
 
+enum Stock {
+  in_stock
+  out_of_stock
+  available_on_order
+}
+
 // models
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(customer)
-  phone     String?  @unique
-  status    Status   @default(active)
-  isDeleted Boolean  @default(false)
+  // --- 1. Identifiant ---
+  id String @id @default(uuid())
+
+  // --- 2. Informations principales ---
+  name     String
+  email    String  @unique
+  phone    String? @unique
+  password String
+
+  // --- 3. Statuts et booléens ---
+  role      Role    @default(customer)
+  status    Status  @default(active)
+  isDeleted Boolean @default(false)
+
+  // --- 4. Timestamps ---
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Catalog {
-  id          String       @id @default(uuid())
-  name        String       @unique
-  slug        String?      @unique
-  imgUrl      String?
+  // --- 1. Identifiant ---
+  id String @id @default(uuid())
+
+  // --- 2. Informations principales ---
+  name        String  @unique
+  slug        String? @unique
   description String?
-  status      Status       @default(active)
-  isHidden    Boolean      @default(false)
-  isDeleted   Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  imgUrl      String?
+
+  // --- 3. Statuts et booléens ---
+  status    Status  @default(active)
+  isHidden  Boolean @default(false)
+  isDeleted Boolean @default(false)
+
+  // --- 4. Timestamps ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- 5. Relations inverses ---
   subCatalogs SubCatalog[]
 }
 
 model SubCatalog {
-  id        String    @id @default(uuid())
-  name      String
+  // --- 1. Identifiant ---
+  id String @id @default(uuid())
+
+  // --- 2. Informations principales ---
+  name String
+
+  // --- 3. Relations (Clés étrangères) ---
   catalogId String
-  catalog   Catalog   @relation(fields: [catalogId], references: [id], onDelete: Restrict)
-  products  Product[]
+  catalog   Catalog @relation(fields: [catalogId], references: [id], onDelete: Restrict)
+
+  // --- 4. Timestamps ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- 5. Relations inverses ---
+  products Product[]
 }
 
 model Product {
-  id          String       @id @default(uuid())
+  // --- 1. Identifiant ---
+  id String @id @default(uuid())
+
+  // --- 2. Informations principales ---
   name        String
-  price       Decimal      @db.Decimal(10, 2)
-  quantity    Int          @default(0)
-  slug        String?      @unique
-  description String?      @db.Text
-  status      Status       @default(active)
-  isHidden    Boolean      @default(false)
-  isDeleted   Boolean      @default(false)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  slug        String? @unique
+  description String? @db.Text
+  price       Decimal @db.Decimal(10, 2)
+  quantity    Int     @default(0)
+
+  // --- 3. Statuts et booléens ---
+  status      Status  @default(active)
+  stockStatus Stock   @default(in_stock)
+  isHidden    Boolean @default(false)
+  isDeleted   Boolean @default(false)
+
+  // --- 4. Timestamps ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --- 5. Relations inverses ---
   images      Image[]
   subCatalogs SubCatalog[]
 }
 
 model Image {
-  id        String  @id @default(uuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  // --- 1. Identifiant ---
+  id String @id @default(uuid())
+
+  // --- 2. Informations principales ---
   imgUrl    String
   isPrimary Boolean @default(false)
+
+  // --- 3. Relations (Clés étrangères) ---
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  // --- 4. Timestamps ---
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
