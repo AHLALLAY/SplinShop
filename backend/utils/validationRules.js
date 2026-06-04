@@ -60,8 +60,17 @@ export const catalogSchema = z.object({
     description: optionalTrimmed(z.string().max(5000, { message: 'description trop longue' })),
 });
 
+export const subCatalogSchema = z.object({
+    catalogId: z.string().uuid({ message: 'catalogue invalide' }),
+    name: z
+        .string({ message: 'nom requis' })
+        .trim()
+        .min(1, { message: 'nom requis' })
+        .max(30, { message: 'maximum 30 caractères' }),
+});
+
 export const productSchema = z.object({
-    catalogId: z.uuid({ message: 'catalogue invalide' }),
+    catalogId: z.string().uuid({ message: 'catalogue invalide' }),
     name: z
         .string({ message: 'nom requis' })
         .trim()
@@ -71,4 +80,5 @@ export const productSchema = z.object({
     quantity: z.coerce.number().int().min(1, { message: 'quantité invalide' }),
     slug: optionalTrimmed(z.string().max(30, { message: 'slug trop long' })),
     description: optionalTrimmed(z.string().max(5000, { message: 'description trop longue' })),
+    subCatalogs: z.array(z.string().uuid()).optional(),
 });
