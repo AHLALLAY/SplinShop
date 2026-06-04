@@ -19,6 +19,15 @@ class SellerService {
         const response = await callEndpoint('/sellers', 'POST', payload);
         return response.data;
     }
+
+    /**
+     * Récupère le numéro de l'admin.
+     * @returns {Promise<string>} Numéro de téléphone
+     */
+    async getAdminPhone() {
+        const response = await callEndpoint('/sellers/admin-phone');
+        return response.data?.phone || null;
+    }
 }
 
 export default new SellerService();
