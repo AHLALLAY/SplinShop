@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import catalogService from '../../services/catalog';
 import productService from '../../services/product';
+import subCatalogService from '../../services/subCatalog';
 import Button from '../../components/ui/Button';
 import ProductModal from '../../components/product/ProductModal';
 import ProductCard from '../../components/product/ProductCard';
@@ -20,11 +21,16 @@ export default function Product({ adminContext = false }) {
     const [loadingCatalog, setLoadingCatalog] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [actionMessage, setActionMessage] = useState('');
+    const [subCatalogs, setSubCatalogs] = useState([]);
+    const [selectedSubCatalog, setSelectedSubCatalog] = useState('Tous');
 
-    const filteredProducts = useMemo(
-        () => filterProductsByQuery(products, searchQuery),
-        [products, searchQuery],
-    );
+    const filteredProducts = useMemo(() => {
+        let list = filterProductsByQuery(products, searchQuery);
+        if (selectedSubCatalog !== 'Tous') {
+            list = list.filter((p) => p.subCatalogs?.some(sc => sc.id === selectedSubCatalog));
+        }
+        return list;
+    }, [products, searchQuery, selectedSubCatalog]);
 
     const loadProducts = useCallback(async (id) => {
         if (!id) {
@@ -61,6 +67,12 @@ export default function Product({ adminContext = false }) {
                 setCatalogId(id);
                 if (id) {
                     setSearchQuery('');
+                    setSelectedSubCatalog('Tous');
+                    subCatalogService.getByCatalog(id)
+                        .then((list) => {
+                            if (!cancelled) setSubCatalogs(list);
+                        })
+                        .catch(console.error);
                     await loadProducts(id);
                 }
             } catch {
@@ -150,11 +162,25 @@ export default function Product({ adminContext = false }) {
             )}
 
             {catalogId && !loadingCatalog && (
-                <ProductSearchBar
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    className="max-w-xl"
-                />
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <ProductSearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        className="max-w-xl flex-1 w-full sm:w-auto"
+                    />
+                    {subCatalogs.length > 0 && (
+                        <select
+                            value={selectedSubCatalog}
+                            onChange={(e) => setSelectedSubCatalog(e.target.value)}
+                            className="w-full sm:w-auto rounded-xl border border-slate-200 py-2.5 px-3 text-sm focus-visible:border-amber-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500"
+                        >
+                            <option value="Tous">Toutes les sous-catégories</option>
+                            {subCatalogs.map(sc => (
+                                <option key={sc.id} value={sc.id}>{sc.name}</option>
+                            ))}
+                        </select>
+                    )}
+                </div>
             )}
 
             {loadingProducts ? (
