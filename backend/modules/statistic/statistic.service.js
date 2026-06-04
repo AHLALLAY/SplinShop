@@ -14,6 +14,7 @@ class StatisticService {
             displayedCatalogs,
             hiddenCatalogs,
             deletedCatalogs,
+            allSubCatalogs,
             allProducts,
             allProductsByCatalog,
             displayedProducts,
@@ -24,16 +25,27 @@ class StatisticService {
             db.prisma.catalog.count({ where: { isHidden: false } }),
             db.prisma.catalog.count({ where: { isHidden: true } }),
             db.prisma.catalog.count({ where: { isDeleted: true } }),
+            db.prisma.subCatalog.count(),
             db.prisma.product.count(),
             db.prisma.catalog.findMany({
                 select: {
                     id: true,
                     name: true,
-                    _count: {
-                        select: { products: true }
+                    subCatalogs: {
+                        select: {
+                            _count: {
+                                select: { products: true }
+                            }
+                        }
                     }
                 }
-            }),
+            }).then(catalogs => catalogs.map(c => ({
+                id: c.id,
+                name: c.name,
+                _count: {
+                    products: c.subCatalogs.reduce((sum, sc) => sum + sc._count.products, 0)
+                }
+            }))),
             db.prisma.product.count({ where: { isHidden: false } }),
             db.prisma.product.count({ where: { isHidden: true } }),
             db.prisma.product.count({ where: { isDeleted: true } }),
@@ -44,6 +56,7 @@ class StatisticService {
             "Displayed Catalogs": displayedCatalogs,
             "Hidden Catalogs": hiddenCatalogs,
             "Deleted Catalogs": deletedCatalogs,
+            "All SubCatalogs": allSubCatalogs,
             "All Products": allProducts,
             "All Products By Catalog": allProductsByCatalog,
             "Displayed Products": displayedProducts,
