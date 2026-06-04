@@ -4,6 +4,7 @@ import ImagePlaceholder from '../ui/ImagePlaceholder';
 import Button from '../ui/Button';
 import KebabMenu from '../ui/KebabMenu';
 import ImageGallery from './ImageGallery';
+import sellerService from '../../services/seller';
 
 function normalizeImages(item) {
   const raw = item?.images;
@@ -29,10 +30,20 @@ function ProductItemCard({ item, adminMode, onEdit, onHide, onDelete }) {
   const galleryKey = galleryKeyFromImages(images);
   const [msg, setMsg] = useState('');
 
-  const handleWhatsAppOrder = () => {
-    setMsg('cette fonctionnalité n\'est pas encore implémenter.');
-    return;
-    // TODO(whatsapp): brancher lien WhatsApp pour les clients connectés
+  const handleWhatsAppOrder = async () => {
+    try {
+      setMsg('');
+      const phone = await sellerService.getAdminPhone();
+      if (!phone) {
+        setMsg('Numéro WhatsApp non disponible.');
+        return;
+      }
+      const message = `Bonjour, je suis intéressé par le produit : ${item.name}. Prix: ${formatPrice(item.price)} DH.`;
+      const url = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank');
+    } catch (err) {
+      setMsg('Erreur lors de la récupération du numéro.');
+    }
   };
 
   const kebabItems = [
