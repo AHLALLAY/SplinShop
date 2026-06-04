@@ -7,5 +7,6 @@ const router = express.Router();
 
 router.post('/', isAuthenticated, requireAdmin, userCtrl.add);
 router.get('/', isAuthenticated, requireAdmin, userCtrl.getAll);
+router.get('/admin-phone', userCtrl.getAdminPhone);
 
 export default router;

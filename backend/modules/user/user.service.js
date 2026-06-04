@@ -52,6 +52,18 @@ class UserService {
             orderBy: { createdAt: 'desc' },
         });
     }
+
+    /**
+     * Récupère le numéro de l'admin.
+     * @returns {Promise<string|null>} Le numéro de téléphone
+     */
+    async getAdminPhone() {
+        const admin = await db.prisma.user.findFirst({
+            where: { role: 'admin' },
+            select: { phone: true },
+        });
+        return admin?.phone || null;
+    }
 }
 
 export default new UserService();

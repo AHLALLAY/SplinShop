@@ -35,6 +35,21 @@ class UserCtrl {
             data: sellers || null,
         });
     });
+
+    /**
+     * Récupère le numéro de l'admin.
+     * @param {import('express').Request} req 
+     * @param {import('express').Response} res 
+     */
+    getAdminPhone = asyncHandler(async (req, res) => {
+        const phone = await userService.getAdminPhone();
+        sendApiResponse(res, {
+            status: 200,
+            success: true,
+            message: 'Numéro admin',
+            data: { phone },
+        });
+    });
 }
 
 export default new UserCtrl();
