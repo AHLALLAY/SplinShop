@@ -5,10 +5,10 @@ import { AppError } from '../../utils/AppError.js';
 import db from '../../databases/connection.js';
 import uploadService from '../../upload/upload.service.js';
 import { parseCatalogId, assertCatalogExists } from '../../utils/catalogHelpers.js';
+import { slugify } from '../../utils/slug.js';
 
 const productWithImagesSelect = {
     id: true,
-    catalogId: true,
     name: true,
     price: true,
     quantity: true,
@@ -21,6 +21,10 @@ const productWithImagesSelect = {
         select: { id: true, imgUrl: true, isPrimary: true },
         orderBy: [{ isPrimary: 'desc' }, { id: 'asc' }],
     },
+    subCatalogs: {
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+    },
 };
 
 class ProductService {
@@ -31,7 +35,7 @@ class ProductService {
      * @returns {Promise<object>} Le produit créé avec ses images
      */
     async add(product, files = []) {
-        const { catalogId, name, price, quantity, slug, description } = parseOrThrow(
+        const { catalogId, name, price, quantity, slug, description, subCatalogs } = parseOrThrow(
             productSchema,
             product,
         );
@@ -41,10 +45,23 @@ class ProductService {
         const fileList = Array.isArray(files) ? files : [];
         const uploadedObjects = [];
         let productId = null;
+        
+        const resolvedSlug = slug ?? slugify(name);
 
         try {
             const createdProduct = await db.prisma.product.create({
-                data: { catalogId, name, price, quantity, slug, description },
+                data: {
+                    name,
+                    price,
+                    quantity,
+                    slug: resolvedSlug,
+                    description,
+                    ...(subCatalogs?.length > 0 && {
+                        subCatalogs: {
+                            connect: subCatalogs.map(id => ({ id })),
+                        },
+                    }),
+                },
             });
             productId = createdProduct.id;
 
@@ -94,7 +111,11 @@ class ProductService {
         await assertCatalogExists(id);
 
         const where = {
-            catalogId: id,
+            subCatalogs: {
+                some: {
+                    catalogId: id,
+                }
+            },
             isDeleted: false,
             status: 'active',
         };
