@@ -4,8 +4,8 @@ import Button from '../ui/Button';
 import Modal from '../ui/Modal';
 import catalogService from '../../services/catalog';
 import { fieldClass, fieldClassFile } from '../../utils/formClasses';
-import { slugify } from '../../utils/slug';
 import { formatApiError } from '../../utils/formatApiError';
+import { X, Save, PlusCircle } from 'lucide-react';
 
 export default function CatalogModal({ visibility, onClose, item = null }) {
     const isEdit = Boolean(item?.id);
@@ -22,7 +22,6 @@ export default function CatalogModal({ visibility, onClose, item = null }) {
             setLoading(true);
             const payload = {
                 name,
-                slug: slugify(name),
                 description,
                 image,
             };
@@ -50,15 +49,16 @@ export default function CatalogModal({ visibility, onClose, item = null }) {
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="w-full rounded-xl border border-slate-200 bg-white! py-2.5 font-semibold text-slate-700! shadow-sm hover:bg-slate-50! focus-visible:ring-slate-400 sm:w-auto sm:min-w-28"
+                className="flex items-center justify-center gap-2 w-full rounded-xl border border-slate-200 bg-white! py-2.5 font-semibold text-slate-700! shadow-sm hover:bg-slate-50! focus-visible:ring-slate-400 sm:w-auto sm:min-w-28"
             >
-                Annuler
+                <X className="h-5 w-5" /> Annuler
             </Button>
             <Button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl py-2.5 font-semibold sm:w-auto sm:min-w-36"
+                className="flex items-center justify-center gap-2 w-full rounded-xl py-2.5 font-semibold sm:w-auto sm:min-w-36"
             >
+                {isEdit ? <Save className="h-5 w-5" /> : <PlusCircle className="h-5 w-5" />}
                 {isEdit ? 'Enregistrer' : 'Ajouter'}
             </Button>
         </>
