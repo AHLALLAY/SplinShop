@@ -70,7 +70,7 @@ export const subCatalogSchema = z.object({
 });
 
 export const productSchema = z.object({
-    catalogId: z.string().uuid({ message: 'catalogue invalide' }),
+    subCatalogId: z.string().uuid({ message: 'sous-catalogue invalide' }),
     name: z
         .string({ message: 'nom requis' })
         .trim()
