@@ -8,7 +8,7 @@ class ProductService {
      */
     async add(product) {
         const body = new FormData();
-        body.append('catalogId', product.catalogId);
+        body.append('subCatalogId', product.subCatalogId);
         body.append('name', product.name);
         body.append('price', String(product.price));
         body.append('quantity', String(product.quantity));
