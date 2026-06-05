@@ -35,17 +35,30 @@ class ProductService {
      * @returns {Promise<object>} Le produit créé avec ses images
      */
     async add(product, files = []) {
-        const { catalogId, name, price, quantity, slug, description, subCatalogs } = parseOrThrow(
+        const { subCatalogId, name, price, quantity, slug, description, subCatalogs } = parseOrThrow(
             productSchema,
             product,
         );
 
-        await assertCatalogExists(catalogId);
+        const finalSubCatalogId = subCatalogId || (subCatalogs && subCatalogs[0]);
+
+        if (!finalSubCatalogId) {
+            throw new AppError('Un sous-catalogue est requis', 400);
+        }
+
+        const subCatalog = await db.prisma.subCatalog.findUnique({
+            where: { id: finalSubCatalogId },
+            include: { catalog: true }
+        });
+
+        if (!subCatalog) {
+            throw new AppError('Sous-catalogue introuvable', 404);
+        }
 
         const fileList = Array.isArray(files) ? files : [];
         const uploadedObjects = [];
         let productId = null;
-        
+
         const resolvedSlug = slug ?? slugify(name);
 
         try {
@@ -56,11 +69,9 @@ class ProductService {
                     quantity,
                     slug: resolvedSlug,
                     description,
-                    ...(subCatalogs?.length > 0 && {
-                        subCatalogs: {
-                            connect: subCatalogs.map(id => ({ id })),
-                        },
-                    }),
+                    subCatalogs: {
+                        connect: { id: finalSubCatalogId }
+                    },
                 },
             });
             productId = createdProduct.id;
@@ -93,8 +104,8 @@ class ProductService {
                 await uploadService.removeObject(objectName);
             }
             if (productId) {
-                await db.prisma.image.deleteMany({ where: { productId } }).catch(() => {});
-                await db.prisma.product.delete({ where: { id: productId } }).catch(() => {});
+                await db.prisma.image.deleteMany({ where: { productId } }).catch(() => { });
+                await db.prisma.product.delete({ where: { id: productId } }).catch(() => { });
             }
             rethrowPrismaError(e, 'Ce slug est déjà utilisé.');
         }
@@ -113,7 +124,7 @@ class ProductService {
         const where = {
             subCatalogs: {
                 some: {
-                    catalogId: id,
+                    catalogId: id
                 }
             },
             isDeleted: false,
@@ -121,11 +132,13 @@ class ProductService {
         };
         if (!forAdmin) where.isHidden = false;
 
-        return db.prisma.product.findMany({
+        const products = await db.prisma.product.findMany({
             where,
             orderBy: { createdAt: 'asc' },
             select: productWithImagesSelect,
         });
+        
+        return products;
     }
 
     /**
