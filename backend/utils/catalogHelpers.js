@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AppError } from './AppError.js';
 import db from '../databases/connection.js';
+import { slugify } from './slug.js';
 
 const catalogIdSchema = z.uuid({ message: 'catalogue invalide' });
 
@@ -35,12 +36,46 @@ export async function assertCatalogExists(catalogId) {
 
 /**
  * Résout un catalogue par slug (non supprimé).
+ * Cherche d'abord par slug exact, puis par correspondance du nom slugifié.
  * @param {string} slug
  * @returns {Promise<object|null>}
  */
 export async function findCatalogBySlug(slug) {
     if (!slug || typeof slug !== 'string') return null;
-    return db.prisma.catalog.findFirst({
-        where: { slug: slug.trim(), isDeleted: false },
+    const trimmed = slug.trim();
+
+    const bySlug = await db.prisma.catalog.findFirst({
+        where: { slug: trimmed, isDeleted: false },
     });
+    if (bySlug) return bySlug;
+
+    const allCatalogs = await db.prisma.catalog.findMany({
+        where: { isDeleted: false },
+    });
+    return allCatalogs.find((c) => slugify(c.name) === trimmed) ?? null;
+}
+
+/**
+ * Récupère tous les sous-catalogues d'un catalogue avec leurs produits
+ */
+export async function getSubCatalogsWithProducts(catalogId, forAdmin = false) {
+    const subCatalogs = await db.prisma.subCatalog.findMany({
+        where: { catalogId },
+        include: {
+            products: {
+                where: {
+                    isDeleted: false,
+                    status: 'active',
+                    ...(!forAdmin && { isHidden: false })
+                },
+                include: {
+                    images: {
+                        where: { isPrimary: true },
+                        take: 1
+                    }
+                }
+            }
+        }
+    });
+    return subCatalogs;
 }
